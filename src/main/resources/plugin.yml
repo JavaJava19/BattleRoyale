@@ -1,0 +1,4 @@
+name: HungerGames
+version: '${project.version}'
+main: com.github.elic0de.hungergames.HungerGames
+api-version: 1.19
