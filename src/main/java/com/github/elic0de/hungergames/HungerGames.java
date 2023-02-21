@@ -35,7 +35,8 @@ public final class HungerGames extends AbstractPlugin {
     public void onDisable() {
         // Plugin shutdown logic
         GameUserManager.getOnlineUsers().forEach(player -> game.leave(player));
-        Bukkit.getScheduler().cancelTasks(this);
+        game.reset();
+        //Bukkit.getScheduler().cancelTasks(this);
     }
 
     private void registerCommands() {

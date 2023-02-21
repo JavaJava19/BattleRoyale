@@ -1,0 +1,29 @@
+name: release
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up JDK 16
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '16'
+        cache: 'maven'
+    - name: pom.yml バージョン更新
+      run:  mvn versions:set -Dparent.version=release-v${{ github.run_number }}
+    - name: Mavenを使ってビルド
+      run:  mvn -B package -f pom.xml
+    - name: original-*.jarを削除
+      run: rm target/original-*.jar
+    - name: パッケージをビルドの成果物としてリリース
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: release-v${{ github.run_number }}
+        files: 'target/*.jar'

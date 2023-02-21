@@ -55,7 +55,7 @@ public class EventListener implements Listener {
             if (event.getDismounted() instanceof EnderDragon) {
                 game.dismountWithTeam(GameUserManager.getGameUser(player));
             }
-            player.getInventory().addItem(ItemBuilder.of(Material.FIREWORK_STAR).build());
+            player.getInventory().addItem(ItemBuilder.of(Material.FIREWORK_ROCKET).build());
             player.getInventory().setChestplate(ItemBuilder.of(Material.ELYTRA).build());
             player.setGliding(true);
         }
@@ -77,7 +77,9 @@ public class EventListener implements Listener {
     @EventHandler
     private void onDamage(EntityDamageEvent event) {
         if (event.getEntity() instanceof Player) {
-            if (event.getCause() == EntityDamageEvent.DamageCause.FALL) event.setCancelled(true);
+            switch (event.getCause()) {
+                case FALL, FLY_INTO_WALL -> event.setCancelled(true);
+            }
         }
     }
 
@@ -86,7 +88,7 @@ public class EventListener implements Listener {
         final Block block = event.getClickedBlock();
         if (block == null) return;
         if (block.getType() == Material.CHEST && event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-            game.getDeathChest().openDeathChest(event.getPlayer(), block.getLocation());
+            game.getDeathChest().openDeathChest(event.getPlayer(), block);
         }
     }
 

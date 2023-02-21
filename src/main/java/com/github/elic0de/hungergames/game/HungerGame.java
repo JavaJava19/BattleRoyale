@@ -2,6 +2,7 @@ package com.github.elic0de.hungergames.game;
 
 import com.github.elic0de.eliccommon.game.AbstractGame;
 import com.github.elic0de.eliccommon.game.phase.Phase;
+import com.github.elic0de.hungergames.HungerGames;
 import com.github.elic0de.hungergames.chest.DeathChest;
 import com.github.elic0de.hungergames.dragon.DragonTrait;
 import com.github.elic0de.hungergames.game.phase.InGamePhase;
@@ -40,6 +41,8 @@ public class HungerGame extends AbstractGame {
     @Getter
     private final Set<String> deadPlayers = new HashSet<>();
 
+    private DragonTrait dragonTrait;
+
     public HungerGame() {
         scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
         border = new GameBorder(this);
@@ -71,14 +74,21 @@ public class HungerGame extends AbstractGame {
         final WorldBorder border = world.getWorldBorder();
         final Location start = border.getCenter().clone().add(border.getSize() / 2, 130, border.getSize() / 2);
         getPlayers().forEach(onlineUser -> {
-            onlineUser.getPlayer().setGameMode(GameMode.SPECTATOR);
             onlineUser.getPlayer().teleport(start);
+            onlineUser.getPlayer().setGameMode(GameMode.SPECTATOR);
         });
+
+        dragonTrait = new DragonTrait(border);
 
         CitizensNPC dragon = new CitizensNPC(UUID.randomUUID(), 1, "", EntityControllers.createForType(EntityType.ENDER_DRAGON), CitizensAPI.getNPCRegistry());
         dragon.spawn(start);
-        dragon.addTrait(new DragonTrait(border));
-        getPlayers().forEach(onlineUser -> dragon.getEntity().addPassenger(onlineUser.getPlayer()));
+        dragon.addTrait(dragonTrait);
+        Bukkit.getScheduler().runTask(HungerGames.getInstance(), () -> {
+            getPlayers().forEach(onlineUser -> {
+
+                dragon.getEntity().addPassenger(onlineUser.getPlayer());
+            });
+        });
     }
 
     public void dismountWithTeam(GameUser user) {
@@ -118,6 +128,7 @@ public class HungerGame extends AbstractGame {
     @Override
     public void reset() {
         border.reset();
+        if (dragonTrait != null) dragonTrait.reset();
     }
 
     public void sendMessageSpectators(GameUser user, String message) {

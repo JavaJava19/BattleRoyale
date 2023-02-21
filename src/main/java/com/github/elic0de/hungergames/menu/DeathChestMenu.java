@@ -13,6 +13,8 @@ public class DeathChestMenu {
 
     private final InventoryGui menu;
 
+    private final Player player;
+
     private static final String[] MENU_LAYOUT = {
             "ppppppppp",
             "ppppppppp",
@@ -21,15 +23,20 @@ public class DeathChestMenu {
             "ppppppppp",
             "ppppppppp"
     };
-    public DeathChestMenu(ItemStack[] contents) {
+    public DeathChestMenu(ItemStack[] contents, Player player) {
+        this.player = player;
         this.menu = new InventoryGui(HungerGames.getInstance(), "DeathChest", MENU_LAYOUT);
-        Inventory inv = Bukkit.createInventory(null, InventoryType.CHEST);
+        Inventory inv = Bukkit.createInventory(null, 54);
         inv.setContents(contents);
         menu.addElement(new GuiStorageElement('p', inv));
         menu.setCloseAction(close -> false);
+
     }
 
-    public void show(Player player) {
-        menu.show(player);
+    public void show() {
+        Bukkit.getScheduler().runTask(HungerGames.getInstance(), () -> {
+            player.closeInventory();
+            menu.show(player);
+        });
     }
 }
