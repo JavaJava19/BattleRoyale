@@ -2,6 +2,7 @@ package com.github.elic0de.hungergames.game;
 
 import com.github.elic0de.eliccommon.game.AbstractGame;
 import com.github.elic0de.eliccommon.game.phase.Phase;
+import com.github.elic0de.hungergames.chest.DeathChest;
 import com.github.elic0de.hungergames.dragon.DragonTrait;
 import com.github.elic0de.hungergames.game.phase.InGamePhase;
 import com.github.elic0de.hungergames.game.phase.WaitingPhase;
@@ -27,6 +28,9 @@ public class HungerGame extends AbstractGame {
     private final Scoreboard scoreboard;
 
     @Getter
+    private final DeathChest deathChest;
+
+    @Getter
     private final GameBossBar bossBar = new GameBossBar();
 
     private final GameBorder border;
@@ -39,6 +43,7 @@ public class HungerGame extends AbstractGame {
     public HungerGame() {
         scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
         border = new GameBorder(this);
+        deathChest = new DeathChest();
     }
 
     public void join(GameUser user) {
@@ -97,6 +102,7 @@ public class HungerGame extends AbstractGame {
                 wonGame();
             }
 
+            deathChest.generateChest(user);
             user.getPlayer().setGameMode(GameMode.SPECTATOR);
             user.getPlayer().getWorld().strikeLightningEffect(user.getPlayer().getLocation());
         }

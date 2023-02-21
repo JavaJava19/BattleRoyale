@@ -4,21 +4,26 @@ import com.github.elic0de.eliccommon.util.ItemBuilder;
 import com.github.elic0de.hungergames.HungerGames;
 import com.github.elic0de.hungergames.game.HungerGame;
 import com.github.elic0de.hungergames.game.phase.InGamePhase;
+import com.github.elic0de.hungergames.menu.DeathChestMenu;
 import com.github.elic0de.hungergames.user.GameUser;
 import com.github.elic0de.hungergames.user.GameUserManager;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Arrow;
 import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.spigotmc.event.entity.EntityDismountEvent;
 
@@ -77,6 +82,15 @@ public class EventListener implements Listener {
     }
 
     @EventHandler
+    private void onInteract(PlayerInteractEvent event) {
+        final Block block = event.getClickedBlock();
+        if (block == null) return;
+        if (block.getType() == Material.CHEST && event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+            game.getDeathChest().openDeathChest(event.getPlayer(), block.getLocation());
+        }
+    }
+
+    @EventHandler
     private void onTeamChat(AsyncPlayerChatEvent event) {
         if (game.getPhase() instanceof InGamePhase) {
             final GameUser sender = GameUserManager.getGameUser(event.getPlayer());
@@ -86,5 +100,34 @@ public class EventListener implements Listener {
             }
             game.sendMessageOwnTeam(sender, event.getMessage());
         }
+    }
+
+    @EventHandler
+    public void onFight(EntityDamageByEntityEvent event) {
+        if (event.getEntity() instanceof Player vitim) {
+            Player damager = null;
+            if (event.getDamager() instanceof Player) damager = (Player) event.getDamager();
+            if (event.getDamager() instanceof Arrow arrow) if (arrow.getShooter() instanceof Player) damager = (Player) event.getDamager();
+            if (damager != null) damager.spigot().sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder(String.join("%s %s", vitim.getName(), getHeartLevel(vitim))).create());
+        }
+    }
+
+    private String getHeartLevel(Player player) {
+
+        int currentHealth = (int) player.getHealth() / 2;
+        int maxHealth = (int) player.getMaxHealth() / 2;
+        int lostHealth = maxHealth - currentHealth;
+
+        String rHeart = "";
+        String lHeart = "";
+
+        for (int i = 0; i < currentHealth; i++) {
+            rHeart = rHeart + ChatColor.RESET + "❤";
+        }
+        for (int i = 0; i < lostHealth; i++) {
+            lHeart = lHeart + ChatColor.GRAY + "❤";
+        }
+
+        return rHeart + lHeart;
     }
 }
