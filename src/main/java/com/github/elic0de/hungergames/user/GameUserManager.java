@@ -1,11 +1,13 @@
 package com.github.elic0de.hungergames.user;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class GameUserManager {
 
@@ -13,18 +15,15 @@ public class GameUserManager {
 
     public static GameUser getGameUser(final @NotNull Player player) {
         final String uuid = player.getUniqueId().toString();
-        if (onlineUsers.containsKey(uuid)) return onlineUsers.get(uuid);
+        if (onlineUsers.containsKey(uuid)) {
+            return onlineUsers.get(uuid);
+        }
         final GameUser gameUser = new GameUser(player);
         onlineUsers.put(uuid, gameUser);
         return gameUser;
     }
 
     public static Collection<GameUser> getOnlineUsers() {
-        return onlineUsers.values();
-    }
-
-    public static void removeGameUser(final @NotNull Player player) {
-        final String uuid = player.getUniqueId().toString();
-        onlineUsers.remove(uuid);
+        return  Bukkit.getOnlinePlayers().stream().map(GameUserManager::getGameUser).filter(user -> user.getPlayer().isOnline()).collect(Collectors.toList());
     }
 }

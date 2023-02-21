@@ -2,11 +2,15 @@ package com.github.elic0de.hungergames.game.phase;
 
 import com.github.elic0de.eliccommon.game.phase.Phase;
 import com.github.elic0de.eliccommon.user.OnlineUser;
+import com.github.elic0de.hungergames.game.HungerGame;
+import com.github.elic0de.hungergames.user.GameUser;
 
 public class InGamePhase extends Phase {
 
-    public InGamePhase(long startDelay, long endDelay) {
-        super(startDelay, endDelay);
+    private final HungerGame game;
+    public InGamePhase(HungerGame game) {
+        super(-0L, -0L);
+        this.game = game;
     }
 
     @Override
