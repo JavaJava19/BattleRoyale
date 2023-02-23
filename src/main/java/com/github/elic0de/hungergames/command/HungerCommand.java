@@ -17,4 +17,9 @@ public class HungerCommand extends BaseCommand {
     private void start(Player player) {
         game.startGame(player);
     }
+
+    @Subcommand("end")
+    private void end(Player player) {
+        game.endGame();
+    }
 }
