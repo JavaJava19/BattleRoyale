@@ -89,10 +89,7 @@ public class HungerGame extends AbstractGame {
         final World world = player.getWorld();
         final WorldBorder border = world.getWorldBorder();
         final Location start = border.getCenter().clone().add(border.getSize() / 2, 130, border.getSize() / 2);
-        getPlayers().forEach(onlineUser -> {
-            onlineUser.getPlayer().teleport(start);
-            onlineUser.getPlayer().setGameMode(GameMode.SPECTATOR);
-        });
+        final Location end = border.getCenter().clone().subtract(border.getSize() / 2, -130, border.getSize() / 2);
 
         dragonTrait = new DragonTrait(border);
         Bukkit.getScheduler().runTaskTimer(HungerGames.getInstance(), task -> {
