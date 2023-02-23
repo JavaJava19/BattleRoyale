@@ -48,10 +48,13 @@ public class HungerGame extends AbstractGame {
 
     private DragonTrait dragonTrait;
 
+    private GameRecords records;
+
     public HungerGame() {
         scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
         border = new GameBorder(this);
         deathChest = new DeathChest();
+        records = new GameRecords(this);
     }
 
     public void join(GameUser user) {
@@ -130,6 +133,10 @@ public class HungerGame extends AbstractGame {
                 wonGame();
             }
 
+            if (user.getPlayer().getKiller() != null) {
+                records.addKill(user);
+            }
+
             deathChest.generateChest(user);
             user.getPlayer().setGameMode(GameMode.SPECTATOR);
             user.getPlayer().getWorld().strikeLightningEffect(user.getPlayer().getLocation());
@@ -157,6 +164,7 @@ public class HungerGame extends AbstractGame {
         aliveTeams.clear();
         deadPlayers.clear();
         border.reset();
+        records.removeAllRecord();
         if (dragonTrait != null) dragonTrait.reset();
     }
 
