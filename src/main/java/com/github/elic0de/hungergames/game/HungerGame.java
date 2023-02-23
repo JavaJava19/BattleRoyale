@@ -37,7 +37,7 @@ public class HungerGame extends AbstractGame {
 
     private final GameBorder border;
 
-    private final Set<Team> deadTeams = new HashSet<>();
+    private final Set<Team> aliveTeams = new HashSet<>();
 
     @Getter
     private final Set<String> deadPlayers = new HashSet<>();
