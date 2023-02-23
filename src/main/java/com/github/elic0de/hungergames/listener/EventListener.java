@@ -117,7 +117,7 @@ public class EventListener implements Listener {
             Player damager = null;
             if (event.getDamager() instanceof Player) damager = (Player) event.getDamager();
             if (event.getDamager() instanceof Arrow arrow) if (arrow.getShooter() instanceof Player) damager = (Player) event.getDamager();
-            if (damager != null) damager.spigot().sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder(String.join("%s %s", vitim.getName(), getHeartLevel(vitim))).create());
+            if (damager != null) damager.spigot().sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder(vitim.getName() + " " + getHeartLevel(vitim)).create());
         }
     }
 
