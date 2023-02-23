@@ -211,6 +211,7 @@ public class HungerGame extends AbstractGame {
         if (getUserTeam(user).isPresent()) {
             final Team team = getUserTeam(user).get();
             for (String name : team.getEntries()) {
+                if (Bukkit.getPlayer(name) == null) continue;
                 if (deadPlayers.contains(name)) continue;
                 return false;
             }
