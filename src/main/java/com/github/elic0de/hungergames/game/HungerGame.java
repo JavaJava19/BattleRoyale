@@ -17,6 +17,7 @@ import net.citizensnpcs.npc.EntityControllers;
 import org.bukkit.*;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 import org.jetbrains.annotations.NotNull;
@@ -40,6 +41,8 @@ public class HungerGame extends AbstractGame {
 
     @Getter
     private final Set<String> deadPlayers = new HashSet<>();
+
+    private final Set<UUID> rejoinPlayers = new HashSet<>();
 
     private DragonTrait dragonTrait;
 
