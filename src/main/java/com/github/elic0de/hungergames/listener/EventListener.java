@@ -131,7 +131,7 @@ public class EventListener implements Listener {
         String lHeart = "";
 
         for (int i = 0; i < currentHealth; i++) {
-            rHeart = rHeart + ChatColor.RESET + "❤";
+            rHeart = rHeart + ChatColor.RED + "❤";
         }
         for (int i = 0; i < lostHealth; i++) {
             lHeart = lHeart + ChatColor.GRAY + "❤";
