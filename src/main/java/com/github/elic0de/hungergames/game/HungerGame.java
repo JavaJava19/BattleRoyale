@@ -120,10 +120,11 @@ public class HungerGame extends AbstractGame {
             }
 
             getUserTeam(user).ifPresent(team -> {
-                if (checkTeamDead(user)) deadTeams.add(team);
+                if (checkTeamDead(user)) aliveTeams.remove(team);
             });
 
-            if (scoreboard.getTeams().size() == deadTeams.size() + 1) {
+            // 生存チームが1チームになったら勝利
+            if (aliveTeams.size() == 1) {
                 wonGame();
             }
 
