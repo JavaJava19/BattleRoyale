@@ -101,6 +101,7 @@ public class EventListener implements Listener {
     @EventHandler
     private void onTeamChat(AsyncPlayerChatEvent event) {
         if (game.getPhase() instanceof InGamePhase) {
+            event.setCancelled(true);
             final GameUser sender = GameUserManager.getGameUser(event.getPlayer());
             if (game.isSpectator(sender)) {
                 game.sendMessageSpectators(sender, event.getMessage());
