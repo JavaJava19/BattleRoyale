@@ -143,6 +143,9 @@ public class HungerGame extends AbstractGame {
 
     @Override
     public void reset() {
+        setCurrentPhase(0);
+        aliveTeams.clear();
+        deadPlayers.clear();
         border.reset();
         if (dragonTrait != null) dragonTrait.reset();
     }
