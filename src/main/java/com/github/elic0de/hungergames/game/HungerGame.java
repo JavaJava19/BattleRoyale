@@ -82,7 +82,8 @@ public class HungerGame extends AbstractGame {
             sound(Sound.ENTITY_WITHER_SPAWN);
     }
 
-    public void spawnEnderDragon(World world) {
+    public void spawnEnderDragon(Player player) {
+        final World world = player.getWorld();
         final WorldBorder border = world.getWorldBorder();
         final Location start = border.getCenter().clone().add(border.getSize() / 2, 130, border.getSize() / 2);
         getPlayers().forEach(onlineUser -> {
@@ -91,16 +92,18 @@ public class HungerGame extends AbstractGame {
         });
 
         dragonTrait = new DragonTrait(border);
+        Bukkit.getScheduler().runTaskTimer(HungerGames.getInstance(), task -> {
+            CitizensNPC dragon = new CitizensNPC(UUID.randomUUID(), 1, "", EntityControllers.createForType(EntityType.ENDER_DRAGON), CitizensAPI.getNPCRegistry());
+            dragon.spawn(player.getLocation());
+            dragon.addTrait(dragonTrait);
 
-        CitizensNPC dragon = new CitizensNPC(UUID.randomUUID(), 1, "", EntityControllers.createForType(EntityType.ENDER_DRAGON), CitizensAPI.getNPCRegistry());
-        dragon.spawn(start);
-        dragon.addTrait(dragonTrait);
-        Bukkit.getScheduler().runTask(HungerGames.getInstance(), () -> {
-            getPlayers().forEach(onlineUser -> {
+            if (dragon.isSpawned()) {
+                dragon.teleport(start, PlayerTeleportEvent.TeleportCause.PLUGIN);
+                getPlayers().forEach(onlineUser -> dragon.getEntity().addPassenger(onlineUser.getPlayer()));
+                task.cancel();
+            }
+        }, 0, 20);
 
-                dragon.getEntity().addPassenger(onlineUser.getPlayer());
-            });
-        });
     }
 
     public void dismountWithTeam(GameUser user) {
