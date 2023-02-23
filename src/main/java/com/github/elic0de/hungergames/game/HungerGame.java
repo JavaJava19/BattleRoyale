@@ -2,6 +2,7 @@ package com.github.elic0de.hungergames.game;
 
 import com.github.elic0de.eliccommon.game.AbstractGame;
 import com.github.elic0de.eliccommon.game.phase.Phase;
+import com.github.elic0de.eliccommon.util.ItemBuilder;
 import com.github.elic0de.hungergames.HungerGames;
 import com.github.elic0de.hungergames.chest.DeathChest;
 import com.github.elic0de.hungergames.dragon.DragonTrait;
@@ -18,6 +19,7 @@ import org.bukkit.*;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 import org.jetbrains.annotations.NotNull;
@@ -172,6 +174,28 @@ public class HungerGame extends AbstractGame {
 
     public boolean isSpectator(GameUser user) {
         return deadPlayers.contains(user.getUsername());
+    }
+
+    public void rejoin(GameUser user) {
+        if (getPhase() instanceof InGamePhase) {
+            if (rejoinPlayers.contains(user.getUniqueId())) {
+                final Player player = user.getPlayer();
+                final ItemStack chestPlate = player.getInventory().getChestplate();
+                if (chestPlate == null) return;
+                if (chestPlate.getType() == Material.ELYTRA) {
+                    player.getInventory().setChestplate(null);
+                    player.getInventory().addItem(ItemBuilder.of(Material.BREAD).amount(20).build());
+                    player.getPassengers().forEach(player::removePassenger);
+                }
+                rejoinPlayers.remove(user.getUniqueId());
+            }
+        }
+    }
+
+    public void addRejoinPlayer(GameUser user) {
+        // 死んでいる場合は再参加無効に
+        if (deadPlayers.contains(user.getUsername())) return;
+        rejoinPlayers.add(user.getUniqueId());
     }
 
     public boolean checkTeamDead(GameUser user) {

@@ -3,6 +3,7 @@ package com.github.elic0de.hungergames.game.phase;
 import com.github.elic0de.eliccommon.game.phase.Phase;
 import com.github.elic0de.eliccommon.user.OnlineUser;
 import com.github.elic0de.hungergames.game.HungerGame;
+import com.github.elic0de.hungergames.user.GameUser;
 
 public class InGamePhase extends Phase {
 
@@ -29,11 +30,11 @@ public class InGamePhase extends Phase {
 
     @Override
     public void join(OnlineUser player) {
-
+        game.rejoin((GameUser) player);
     }
 
     @Override
     public void leave(OnlineUser player) {
-
+        game.addRejoinPlayer((GameUser) player);
     }
 }
