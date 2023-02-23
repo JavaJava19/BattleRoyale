@@ -4,7 +4,6 @@ import com.github.elic0de.eliccommon.util.ItemBuilder;
 import com.github.elic0de.hungergames.HungerGames;
 import com.github.elic0de.hungergames.game.HungerGame;
 import com.github.elic0de.hungergames.game.phase.InGamePhase;
-import com.github.elic0de.hungergames.menu.DeathChestMenu;
 import com.github.elic0de.hungergames.user.GameUser;
 import com.github.elic0de.hungergames.user.GameUserManager;
 import net.md_5.bungee.api.ChatMessageType;
