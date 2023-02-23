@@ -152,7 +152,7 @@ public class HungerGame extends AbstractGame {
 
     public void sendMessageSpectators(GameUser user, String message) {
         getPlayers(GameUser.class).forEach(onlineUser -> {
-            if (isSpectator(onlineUser)) onlineUser.sendMessage(new MineDown(String.format("%s: %s", user.getUsername(), message)));
+            if (isSpectator(onlineUser)) onlineUser.sendMessage(new MineDown(String.format("[観戦者] %s: %s", user.getUsername(), message)));
         });
     }
 
