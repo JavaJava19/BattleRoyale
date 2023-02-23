@@ -60,8 +60,20 @@ public class HungerGame extends AbstractGame {
     }
 
     public void startGame(Player player) {
-        if (getPhase() instanceof WaitingPhase) nextPhase();
-        spawnEnderDragon(player.getWorld());
+        if (getPhase() instanceof WaitingPhase) {
+            final WorldBorder border = player.getWorld().getWorldBorder();
+            final Location start = border.getCenter().clone().add(border.getSize() / 2, 130, border.getSize() / 2);
+
+            getPlayers(GameUser.class).forEach(user -> {
+                // プレイヤーが所属しているチームを生存しているチームとして登録
+                getUserTeam(user).ifPresent(aliveTeams::add);
+                user.getPlayer().getInventory().clear();
+                user.getPlayer().teleport(start);
+                user.getPlayer().setGameMode(GameMode.SPECTATOR);
+            });
+            nextPhase();
+            spawnEnderDragon(player);
+        }
     }
 
     public void startBorder() {
