@@ -154,7 +154,9 @@ public class HungerGame extends AbstractGame {
     }
 
     public void sendMessageOwnTeam(GameUser user, String message) {
-        getTeamUsers(user).forEach(player -> player.sendMessage(new MineDown(String.format("%s: %s", user.getUsername(), message))));
+        getUserTeam(user).ifPresent(team -> {
+            getTeamUsers(user).forEach(player -> player.sendMessage(new MineDown(String.format("[%s] %s: %s", team.getName(), user.getUsername(), message))));
+        });
     }
 
     public boolean isSpectator(GameUser user) {
