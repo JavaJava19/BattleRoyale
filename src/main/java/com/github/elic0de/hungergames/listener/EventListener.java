@@ -75,6 +75,7 @@ public class EventListener implements Listener {
             if (chestPlate.getType() == Material.ELYTRA) {
                 player.getInventory().setChestplate(null);
                 player.getInventory().addItem(ItemBuilder.of(Material.BREAD).amount(20).build());
+                player.getPassengers().forEach(player::removePassenger);
             }
         }
     }
