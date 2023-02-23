@@ -186,6 +186,7 @@ public class HungerGame extends AbstractGame {
                     player.getInventory().setChestplate(null);
                     player.getInventory().addItem(ItemBuilder.of(Material.BREAD).amount(20).build());
                     player.getPassengers().forEach(player::removePassenger);
+                    player.setGameMode(GameMode.SURVIVAL);
                 }
                 rejoinPlayers.remove(user.getUniqueId());
             }
