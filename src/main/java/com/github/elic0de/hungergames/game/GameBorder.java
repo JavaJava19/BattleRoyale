@@ -45,7 +45,7 @@ public class GameBorder {
                     cancel();
                     return;
                 }
-                bossBar.setBossBar("残りのプレイヤー数表示 &6" + (game.getPlayers().size() - game.getDeadPlayers().size()));
+                bossBar.setBossBar("残りのプレイヤー数: &6" + (game.getPlayers().size() - game.getDeadPlayers().size()));
                 bossBar.setProgress((double) Math.max(timeInSeconds - borderTicks.get(), 0)/timeInSeconds);
             }
         }.runTaskTimer(HungerGames.getInstance(), 0, PERIOD);
