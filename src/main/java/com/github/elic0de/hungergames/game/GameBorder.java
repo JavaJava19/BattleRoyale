@@ -14,7 +14,7 @@ public class GameBorder {
 
     private final GameBossBar bossBar;
     private final WorldBorder border = Bukkit.getWorlds().get(0).getWorldBorder();
-    private final double MAX_BORDER_SIZE = 500;
+    private final double MAX_BORDER_SIZE = 1000;
 
     private BukkitTask borderTask;
 
