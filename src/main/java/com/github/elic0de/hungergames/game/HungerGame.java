@@ -115,7 +115,7 @@ public class HungerGame extends AbstractGame {
             if (isSpectator(user)) return;
 
             deadPlayers.add(user.getUsername());
-            if (deadPlayers.size() == 10) {
+            if ((getPlayers().size() - getDeadPlayers().size()) == 10) {
                 broadcast(new MineDown("残りプレイヤー10人"));
             }
 
