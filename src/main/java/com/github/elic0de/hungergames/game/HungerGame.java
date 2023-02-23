@@ -137,7 +137,8 @@ public class HungerGame extends AbstractGame {
         if (getPhase() instanceof InGamePhase) {
             scoreboard.getTeams().stream().filter(team -> !deadTeams.contains(team)).findAny().ifPresent(team -> broadcast(new MineDown(String.format("%sのチームが勝利しました", team.getName()))));
 
-        }
+    public void endGame() {
+        reset();
     }
 
     @Override
