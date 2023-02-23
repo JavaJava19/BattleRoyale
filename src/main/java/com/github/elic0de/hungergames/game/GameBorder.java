@@ -23,7 +23,8 @@ public class GameBorder {
     public GameBorder(HungerGame game) {
         this.game = game;
         this.bossBar = game.getBossBar();
-        border.setDamageBuffer(1);
+        border.setDamageBuffer(2);
+        border.setDamageAmount(0.5D);
         border.setSize(MAX_BORDER_SIZE);
     }
 
