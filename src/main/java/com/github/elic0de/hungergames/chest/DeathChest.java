@@ -29,6 +29,17 @@ public class DeathChest {
     }
 
     public void reset() {
+        restoreChest();
         chestLocations.clear();
+    }
+
+    private void restoreChest() {
+        for (Block block : chestLocations.keySet())  {
+            block.setType(Material.AIR);
+        }
+    }
+
+    public boolean containsDeathChest(Block block) {
+        return  chestLocations.containsKey(block);
     }
 }

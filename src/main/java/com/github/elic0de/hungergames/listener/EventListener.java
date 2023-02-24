@@ -92,7 +92,7 @@ public class EventListener implements Listener {
     private void onInteract(PlayerInteractEvent event) {
         final Block block = event.getClickedBlock();
         if (block == null) return;
-        if (block.getType() == Material.CHEST && event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+        if (block.getType() == Material.CHEST && event.getAction() == Action.RIGHT_CLICK_BLOCK && game.getDeathChest().containsDeathChest(block)) {
             event.setCancelled(true);
             game.getDeathChest().openDeathChest(event.getPlayer(), block);
         }
