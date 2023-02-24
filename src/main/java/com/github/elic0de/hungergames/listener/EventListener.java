@@ -49,18 +49,21 @@ public class EventListener implements Listener {
 
     @EventHandler
     private void onDismount(EntityDismountEvent event) {
-        if (event.getEntity() instanceof Player player) {
-            player.setGameMode(GameMode.SURVIVAL);
-            if (event.getDismounted() instanceof EnderDragon) {
-                game.dismountWithTeam(GameUserManager.getGameUser(player));
-                player.getInventory().addItem(ItemBuilder.of(Material.FIREWORK_ROCKET).build());
-                player.getInventory().setChestplate(ItemBuilder.of(Material.ELYTRA).build());
-                player.setGliding(true);
-            }
-            if (event.getDismounted() instanceof Player) {
-                player.getInventory().addItem(ItemBuilder.of(Material.FIREWORK_ROCKET).build());
-                player.getInventory().setChestplate(ItemBuilder.of(Material.ELYTRA).build());
-                player.setGliding(true);
+        if (game.getPhase() instanceof InGamePhase) {
+            if (event.getEntity() instanceof Player player) {
+                if (game.getDeadPlayers().contains(player.getName())) return;
+                if (event.getDismounted() instanceof EnderDragon) {
+                    game.dismountWithTeam(GameUserManager.getGameUser(player));
+                    player.getInventory().addItem(ItemBuilder.of(Material.FIREWORK_ROCKET).build());
+                    player.getInventory().setChestplate(ItemBuilder.of(Material.ELYTRA).build());
+                    player.setGliding(true);
+                }
+                if (event.getDismounted() instanceof Player) {
+                    player.getInventory().addItem(ItemBuilder.of(Material.FIREWORK_ROCKET).build());
+                    player.getInventory().setChestplate(ItemBuilder.of(Material.ELYTRA).build());
+                    player.setGliding(true);
+                }
+                player.setGameMode(GameMode.SURVIVAL);
             }
         }
     }
