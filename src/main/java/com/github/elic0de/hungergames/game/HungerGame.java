@@ -163,6 +163,8 @@ public class HungerGame extends AbstractGame {
         setCurrentPhase(0);
         aliveTeams.clear();
         deadPlayers.clear();
+        deathChest.reset();
+        rejoinPlayers.clear();
         border.reset();
         records.removeAllRecord();
         if (dragonTrait != null) dragonTrait.reset();
