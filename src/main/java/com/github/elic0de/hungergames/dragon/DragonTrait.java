@@ -37,7 +37,6 @@ public class DragonTrait extends Trait {
             @Override
             public void run() {
                 if (locations.get(index.get()) == null) {
-                    HungerGames.getInstance().getGame().startBorder();
                     npc.destroy();
                     cancel();
                     return;

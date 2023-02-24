@@ -98,6 +98,8 @@ public class HungerGame extends AbstractGame {
         final Location start = border.getCenter().clone().add(border.getSize() / 2, 130, border.getSize() / 2);
         final Location end = border.getCenter().clone().subtract(border.getSize() / 2, -130, border.getSize() / 2);
 
+        Bukkit.getScheduler().runTaskLater(HungerGames.getInstance(), this::startBorder, (long) ((start.distance(end) / 10) * 20));
+
         dragonTrait = new DragonTrait(border);
         Bukkit.getScheduler().runTaskTimer(HungerGames.getInstance(), task -> {
             CitizensNPC dragon = new CitizensNPC(UUID.randomUUID(), 1, "", EntityControllers.createForType(EntityType.ENDER_DRAGON), CitizensAPI.getNPCRegistry());
@@ -105,7 +107,6 @@ public class HungerGame extends AbstractGame {
             dragon.addTrait(dragonTrait);
 
             if (dragon.isSpawned()) {
-                dragon.teleport(start, PlayerTeleportEvent.TeleportCause.PLUGIN);
                 getPlayers().stream().filter(onlineUser -> !deadPlayers.contains(onlineUser.getUsername())).forEach(onlineUser -> dragon.getEntity().addPassenger(onlineUser.getPlayer()));
                 task.cancel();
             }
@@ -130,8 +131,8 @@ public class HungerGame extends AbstractGame {
                 if (checkTeamDead(user)) aliveTeams.remove(team);
             });
 
-            // 生存チームが1チームになったら勝利
-            if (aliveTeams.size() == 1) {
+            // 生存チーム数が2チーム以下になったら勝利
+            if (aliveTeams.size() < 2) {
                 wonGame();
             }
 
@@ -150,7 +151,6 @@ public class HungerGame extends AbstractGame {
             aliveTeams.stream().findAny().ifPresent(team -> {
                 broadcast(new MineDown(String.format("%sのチームが勝利しました", team.getName())));
                 title(String.format("%s 勝利しました", team.getName()), "");
-                sound(Sound.UI_TOAST_CHALLENGE_COMPLETE);
             });
             endGame();
         }
