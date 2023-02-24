@@ -163,7 +163,7 @@ public class HungerGame extends AbstractGame {
 
     @Override
     public void reset() {
-        setCurrentPhase(0);
+        if (getPhase() instanceof InGamePhase) setCurrentPhase(0);
         aliveTeams.clear();
         deadPlayers.clear();
         deathChest.reset();
@@ -180,9 +180,7 @@ public class HungerGame extends AbstractGame {
     }
 
     public void sendMessageOwnTeam(GameUser user, String message) {
-        getUserTeam(user).ifPresent(team -> {
-            getTeamUsers(user).forEach(player -> player.sendMessage(new MineDown(String.format("[%s] %s: %s", team.getName(), user.getUsername(), message))));
-        });
+        getUserTeam(user).ifPresent(team -> getTeamUsers(user).forEach(player -> player.sendMessage(new MineDown(String.format("[%s] %s: %s", team.getName(), user.getUsername(), message)))));
     }
 
     public boolean isSpectator(GameUser user) {
