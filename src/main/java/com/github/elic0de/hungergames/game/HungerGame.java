@@ -157,6 +157,7 @@ public class HungerGame extends AbstractGame {
     }
 
     public void endGame() {
+        sound(Sound.UI_TOAST_CHALLENGE_COMPLETE);
         reset();
     }
 
