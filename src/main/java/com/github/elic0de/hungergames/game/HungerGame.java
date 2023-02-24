@@ -74,7 +74,9 @@ public class HungerGame extends AbstractGame {
 
             getPlayers(GameUser.class).forEach(user -> {
                 // プレイヤーが所属しているチームを生存しているチームとして登録
-                getUserTeam(user).ifPresent(aliveTeams::add);
+                // チームに所属していなかったら観戦者とする
+                getUserTeam(user).ifPresentOrElse(aliveTeams::add, () -> deadPlayers.add(user.getUsername()));
+
                 user.getPlayer().getInventory().clear();
                 user.getPlayer().teleport(start);
                 user.getPlayer().setGameMode(GameMode.SPECTATOR);
@@ -104,7 +106,7 @@ public class HungerGame extends AbstractGame {
 
             if (dragon.isSpawned()) {
                 dragon.teleport(start, PlayerTeleportEvent.TeleportCause.PLUGIN);
-                getPlayers().forEach(onlineUser -> dragon.getEntity().addPassenger(onlineUser.getPlayer()));
+                getPlayers().stream().filter(onlineUser -> !deadPlayers.contains(onlineUser.getUsername())).forEach(onlineUser -> dragon.getEntity().addPassenger(onlineUser.getPlayer()));
                 task.cancel();
             }
         }, 0, 20);
