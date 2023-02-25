@@ -39,8 +39,7 @@ public class EventListener implements Listener {
 
     @EventHandler
     private void onQuit(PlayerQuitEvent event) {
-        final Player player = event.getPlayer();
-        game.leave(GameUserManager.getGameUser(player));
+        game.leave(GameUserManager.getGameUser(event.getPlayer()));
     }
 
     @EventHandler
