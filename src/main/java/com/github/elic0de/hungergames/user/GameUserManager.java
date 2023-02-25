@@ -23,6 +23,10 @@ public class GameUserManager {
         return gameUser;
     }
 
+    public static void unRegisterUser(Player player) {
+        onlineUsers.remove(player.getUniqueId().toString());
+    }
+
     public static Collection<GameUser> getOnlineUsers() {
         return  Bukkit.getOnlinePlayers().stream().map(GameUserManager::getGameUser).filter(user -> user.getPlayer().isOnline()).collect(Collectors.toList());
     }
