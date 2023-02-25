@@ -20,6 +20,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 import org.jetbrains.annotations.NotNull;
@@ -122,7 +123,7 @@ public class HungerGame extends AbstractGame {
 
     public void onDeath(GameUser user) {
         if (getPhase() instanceof InGamePhase) {
-            if (isSpectator(user)) return;
+/*            if (isSpectator(user)) return;
 
             deadPlayers.add(user.getUsername());
             if ((getPlayers().size() - getDeadPlayers().size()) == 10) {
@@ -132,19 +133,20 @@ public class HungerGame extends AbstractGame {
             getUserTeam(user).ifPresent(team -> {
                 if (checkTeamDead(user)) aliveTeams.remove(team);
             });
-
             // 生存チーム数が2チーム以下になったら勝利
             if (aliveTeams.size() < 2) {
                 wonGame();
-            }
+            }*/
 
             if (user.getPlayer().getKiller() != null) {
-                records.addKill(user);
+                records.addKill(GameUserManager.getGameUser(user.getPlayer().getKiller()));
             }
 
-            deathChest.generateChest(user);
-            user.getPlayer().setGameMode(GameMode.SPECTATOR);
-            user.getPlayer().getWorld().strikeLightningEffect(user.getPlayer().getLocation());
+            Bukkit.getScheduler().runTask(HungerGames.getInstance(), () -> {
+                deathChest.generateChest(user);
+                user.getPlayer().setGameMode(GameMode.SPECTATOR);
+                user.getPlayer().getWorld().strikeLightningEffect(user.getPlayer().getLocation());
+            });
         }
     }
 
@@ -203,7 +205,9 @@ public class HungerGame extends AbstractGame {
                     player.setGameMode(GameMode.SURVIVAL);
                 }
                 rejoinPlayers.remove(user.getUniqueId());
+                return;
             }
+            user.getPlayer().setGameMode(GameMode.SPECTATOR);
         }
     }
 
