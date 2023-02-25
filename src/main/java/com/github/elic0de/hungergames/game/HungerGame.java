@@ -193,12 +193,16 @@ public class HungerGame extends AbstractGame {
 
     public void sendMessageSpectators(GameUser user, String message) {
         getPlayers(GameUser.class).forEach(onlineUser -> {
-            if (isSpectator(onlineUser)) onlineUser.sendMessage(new MineDown(String.format("[観戦者] %s: %s", user.getUsername(), message)));
+            if (isSpectator(onlineUser)) onlineUser.sendMessage(new MineDown(String.format("&b[観戦者] %s&r: &7%s", user.getUsername(), message)));
         });
     }
 
     public void sendMessageOwnTeam(GameUser user, String message) {
-        getUserTeam(user).ifPresent(team -> getTeamUsers(user).forEach(player -> player.sendMessage(new MineDown(String.format("[%s] %s: %s", team.getName(), user.getUsername(), message)))));
+        getUserTeam(user).ifPresent(team -> getTeamUsers(user).forEach(player -> player.sendMessage(new MineDown(String.format("%s[%s] %s&r: &7%s", team.getColor(), team.getName(), user.getUsername(), message)))));
+    }
+
+    public void shout(GameUser user, String message) {
+        getUserTeam(user).ifPresent(team -> broadcast(new MineDown(String.format("%s[%s] %s&r: &7%s", team.getColor(), team.getName(), user.getUsername(), message))));
     }
 
     public boolean isSpectator(GameUser user) {

@@ -129,11 +129,16 @@ public class EventListener implements Listener {
         if (game.getPhase() instanceof InGamePhase) {
             event.setCancelled(true);
             final GameUser sender = GameUserManager.getGameUser(event.getPlayer());
+            final String message = event.getMessage();
             if (game.isSpectator(sender)) {
-                game.sendMessageSpectators(sender, event.getMessage());
+                game.sendMessageSpectators(sender, message);
                 return;
             }
-            game.sendMessageOwnTeam(sender, event.getMessage());
+            if (event.getMessage().startsWith("@")) {
+                game.shout(sender, message.substring(1));
+                return;
+            }
+            game.sendMessageOwnTeam(sender, message);
         }
     }
 
