@@ -25,6 +25,7 @@ import org.bukkit.scoreboard.Team;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class HungerGame extends AbstractGame {
@@ -38,6 +39,9 @@ public class HungerGame extends AbstractGame {
     private final GameBossBar bossBar = new GameBossBar();
 
     private final GameBorder border;
+
+    @Getter
+    private final Set<GameUser> gameUsers = new HashSet<>();
 
     private final Set<Team> aliveTeams = new HashSet<>();
 
@@ -60,12 +64,12 @@ public class HungerGame extends AbstractGame {
     }
 
     public void join(GameUser user) {
-        super.join(user);
+        gameUsers.add(user);
         bossBar.addPlayer(user);
     }
 
     public void leave(GameUser user) {
-        super.leave(user);
+        gameUsers.remove(user);
         bossBar.removePlayer(user);
     }
 
@@ -74,14 +78,16 @@ public class HungerGame extends AbstractGame {
             final WorldBorder border = player.getWorld().getWorldBorder();
             final Location start = border.getCenter().clone().add(border.getSize() / 2, 130, border.getSize() / 2);
 
-            getPlayers(GameUser.class).forEach(user -> {
+            getGameUsers().forEach(user -> {
                 // プレイヤーが所属しているチームを生存しているチームとして登録
                 // チームに所属していなかったら観戦者とする
                 getUserTeam(user).ifPresentOrElse(aliveTeams::add, () -> deadPlayers.add(user.getUsername()));
 
-                user.getPlayer().getInventory().clear();
-                user.getPlayer().teleport(start);
-                user.getPlayer().setGameMode(GameMode.SPECTATOR);
+                Bukkit.getScheduler().runTask(HungerGames.getInstance(), () -> {
+                    user.getPlayer().getInventory().clear();
+                    user.getPlayer().teleport(start);
+                    user.getPlayer().setGameMode(GameMode.SPECTATOR);
+                });
             });
             nextPhase();
             spawnEnderDragon(player);
@@ -109,7 +115,7 @@ public class HungerGame extends AbstractGame {
             dragon.addTrait(dragonTrait);
 
             if (dragon.isSpawned()) {
-                getPlayers().stream().filter(onlineUser -> !deadPlayers.contains(onlineUser.getUsername())).forEach(onlineUser -> dragon.getEntity().addPassenger(onlineUser.getPlayer()));
+                getGameUsers().stream().filter(onlineUser -> !deadPlayers.contains(onlineUser.getUsername())).forEach(onlineUser -> dragon.getEntity().addPassenger(onlineUser.getPlayer()));
                 task.cancel();
             }
         }, 0, 20);
@@ -122,20 +128,16 @@ public class HungerGame extends AbstractGame {
 
     public void onDeath(GameUser user) {
         if (getPhase() instanceof InGamePhase) {
-/*            if (isSpectator(user)) return;
+            if (isSpectator(user)) return;
 
             deadPlayers.add(user.getUsername());
-            if ((getPlayers().size() - getDeadPlayers().size()) == 10) {
+            if (getAlivePlayersSize() == 10) {
                 broadcast(new MineDown("残りプレイヤー10人"));
             }
 
             getUserTeam(user).ifPresent(team -> {
                 if (checkTeamDead(user)) aliveTeams.remove(team);
             });
-            // 生存チーム数が2チーム以下になったら勝利
-            if (aliveTeams.size() < 2) {
-                wonGame();
-            }*/
 
             if (user.getPlayer().getKiller() != null) {
                 records.addKill(GameUserManager.getGameUser(user.getPlayer().getKiller()));
@@ -146,6 +148,11 @@ public class HungerGame extends AbstractGame {
                 user.getPlayer().setGameMode(GameMode.SPECTATOR);
                 user.getPlayer().getWorld().strikeLightningEffect(user.getPlayer().getLocation());
             });
+
+            // 生存チーム数が2チーム以下になったら勝利
+            if (aliveTeams.size() < 2) {
+                wonGame();
+            }
         }
     }
 
@@ -160,8 +167,23 @@ public class HungerGame extends AbstractGame {
     }
 
     public void endGame() {
+        showResult();
         sound(Sound.UI_TOAST_CHALLENGE_COMPLETE);
         reset();
+    }
+
+    // todo
+    private void showResult() {
+
+        final List<Map.Entry<UUID, Integer>> list = new ArrayList<>(records.getRank().entrySet());
+
+        list.stream().limit(10).forEach(entry -> {
+            final UUID uuid = entry.getKey();
+            final OfflinePlayer player = Bukkit.getOfflinePlayer(uuid);
+            final String playerName = player != null ? player.getName() : "No name";
+
+            broadcast(new MineDown(String.format("&c%s&r位 &a%s&r &c%s&r kills", entry.getValue(), playerName, records.personalBest(uuid))));
+        });
     }
 
     @Override
@@ -178,7 +200,7 @@ public class HungerGame extends AbstractGame {
     }
 
     public void sendMessageSpectators(GameUser user, String message) {
-        getPlayers(GameUser.class).forEach(onlineUser -> {
+        getGameUsers().forEach(onlineUser -> {
             if (isSpectator(onlineUser)) onlineUser.sendMessage(new MineDown(String.format("[観戦者] %s: %s", user.getUsername(), message)));
         });
     }
@@ -197,7 +219,7 @@ public class HungerGame extends AbstractGame {
                 final Player player = user.getPlayer();
                 final ItemStack chestPlate = player.getInventory().getChestplate();
                 if (chestPlate == null) return;
-                if (chestPlate.getType() == Material.ELYTRA) {
+                if (chestPlate.getType() == Material.ELYTRA || player.getGameMode() == GameMode.SPECTATOR) {
                     player.getInventory().setChestplate(null);
                     player.getInventory().addItem(ItemBuilder.of(Material.BREAD).amount(20).build());
                     player.getPassengers().forEach(player::removePassenger);
@@ -237,6 +259,18 @@ public class HungerGame extends AbstractGame {
         final Team team = scoreboard.getEntryTeam(user.getUsername());
         if (team == null) return new HashSet<>();
         return team.getEntries().stream().map(Bukkit::getPlayer).filter(Objects::nonNull).map(GameUserManager::getGameUser).collect(Collectors.toSet());
+    }
+
+    public int getAlivePlayersSize() {
+        final AtomicInteger playersSize = new AtomicInteger();
+        aliveTeams.forEach(team -> {
+            for (String playerName : team.getEntries()) {
+                if (deadPlayers.contains(playerName)) continue;
+                playersSize.incrementAndGet();
+            }
+        });
+
+        return playersSize.get();
     }
 
     @Override
