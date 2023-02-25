@@ -2,6 +2,7 @@ package com.github.elic0de.hungergames.game;
 
 import com.github.elic0de.eliccommon.game.AbstractGame;
 import com.github.elic0de.eliccommon.game.phase.Phase;
+import com.github.elic0de.eliccommon.user.OnlineUser;
 import com.github.elic0de.eliccommon.util.ItemBuilder;
 import com.github.elic0de.hungergames.HungerGames;
 import com.github.elic0de.hungergames.chest.DeathChest;
@@ -72,7 +73,9 @@ public class HungerGame extends AbstractGame {
     }
 
     public void randomTeam() {
-        getPlayers().forEach(user -> scoreboard.getTeams().stream().min(Comparator.comparing(Team::getSize)).ifPresent(team -> team.addEntry(user.getUsername())));
+        final List<OnlineUser> users = new ArrayList<>(getPlayers());
+        Collections.shuffle(users);
+        users.forEach(user -> scoreboard.getTeams().stream().min(Comparator.comparing(Team::getSize)).ifPresent(team -> team.addEntry(user.getUsername())));
     }
 
     public void startGame(Player player) {
