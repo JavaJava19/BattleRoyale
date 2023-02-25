@@ -40,8 +40,6 @@ public class HungerGame extends AbstractGame {
 
     private final GameBorder border;
 
-    @Getter
-    private final Set<GameUser> gameUsers = new HashSet<>();
 
     private final Set<Team> aliveTeams = new HashSet<>();
 
@@ -64,12 +62,12 @@ public class HungerGame extends AbstractGame {
     }
 
     public void join(GameUser user) {
-        gameUsers.add(user);
+        super.join(user);
         bossBar.addPlayer(user);
     }
 
     public void leave(GameUser user) {
-        gameUsers.remove(user);
+        super.leave(user);
         bossBar.removePlayer(user);
     }
 
@@ -78,16 +76,14 @@ public class HungerGame extends AbstractGame {
             final WorldBorder border = player.getWorld().getWorldBorder();
             final Location start = border.getCenter().clone().add(border.getSize() / 2, 130, border.getSize() / 2);
 
-            getGameUsers().forEach(user -> {
+            getPlayers(GameUser.class).forEach(user -> {
                 // プレイヤーが所属しているチームを生存しているチームとして登録
                 // チームに所属していなかったら観戦者とする
                 getUserTeam(user).ifPresentOrElse(aliveTeams::add, () -> deadPlayers.add(user.getUsername()));
 
-                Bukkit.getScheduler().runTask(HungerGames.getInstance(), () -> {
-                    user.getPlayer().getInventory().clear();
-                    user.getPlayer().teleport(start);
-                    user.getPlayer().setGameMode(GameMode.SPECTATOR);
-                });
+                user.getPlayer().getInventory().clear();
+                user.getPlayer().teleport(start);
+                user.getPlayer().setGameMode(GameMode.SPECTATOR);
             });
             nextPhase();
             spawnEnderDragon(player);
@@ -113,9 +109,8 @@ public class HungerGame extends AbstractGame {
             CitizensNPC dragon = new CitizensNPC(UUID.randomUUID(), 1, "", EntityControllers.createForType(EntityType.ENDER_DRAGON), CitizensAPI.getNPCRegistry());
             dragon.spawn(player.getLocation());
             dragon.addTrait(dragonTrait);
-
             if (dragon.isSpawned()) {
-                getGameUsers().stream().filter(onlineUser -> !deadPlayers.contains(onlineUser.getUsername())).forEach(onlineUser -> dragon.getEntity().addPassenger(onlineUser.getPlayer()));
+                getPlayers().stream().filter(onlineUser -> !deadPlayers.contains(onlineUser.getUsername())).forEach(onlineUser -> dragon.getEntity().addPassenger(onlineUser.getPlayer()));
                 task.cancel();
             }
         }, 0, 20);
@@ -123,7 +118,7 @@ public class HungerGame extends AbstractGame {
     }
 
     public void dismountWithTeam(GameUser user) {
-        Bukkit.getScheduler().runTask(HungerGames.getInstance(), () -> getTeamUsers(user).stream().filter(user1 -> user1 != user).forEach(user1 -> user.getPlayer().addPassenger(user1.getPlayer())));
+        getTeamUsers(user).stream().filter(user1 -> user1 != user).forEach(user1 -> user.getPlayer().addPassenger(user1.getPlayer()));
     }
 
     public void onDeath(GameUser user) {
@@ -143,11 +138,9 @@ public class HungerGame extends AbstractGame {
                 records.addKill(GameUserManager.getGameUser(user.getPlayer().getKiller()));
             }
 
-            Bukkit.getScheduler().runTask(HungerGames.getInstance(), () -> {
-                deathChest.generateChest(user);
-                user.getPlayer().setGameMode(GameMode.SPECTATOR);
-                user.getPlayer().getWorld().strikeLightningEffect(user.getPlayer().getLocation());
-            });
+            deathChest.generateChest(user);
+            user.getPlayer().setGameMode(GameMode.SPECTATOR);
+            user.getPlayer().getWorld().strikeLightningEffect(user.getPlayer().getLocation());
 
             // 生存チーム数が2チーム以下になったら勝利
             if (aliveTeams.size() < 2) {
@@ -174,10 +167,9 @@ public class HungerGame extends AbstractGame {
 
     // todo
     private void showResult() {
-
         final List<Map.Entry<UUID, Integer>> list = new ArrayList<>(records.getRank().entrySet());
 
-        list.stream().limit(10).forEach(entry -> {
+        list.stream().sorted(Map.Entry.comparingByValue()).limit(10).forEach(entry -> {
             final UUID uuid = entry.getKey();
             final OfflinePlayer player = Bukkit.getOfflinePlayer(uuid);
             final String playerName = player != null ? player.getName() : "No name";
@@ -200,7 +192,7 @@ public class HungerGame extends AbstractGame {
     }
 
     public void sendMessageSpectators(GameUser user, String message) {
-        getGameUsers().forEach(onlineUser -> {
+        getPlayers(GameUser.class).forEach(onlineUser -> {
             if (isSpectator(onlineUser)) onlineUser.sendMessage(new MineDown(String.format("[観戦者] %s: %s", user.getUsername(), message)));
         });
     }
@@ -255,7 +247,7 @@ public class HungerGame extends AbstractGame {
         return Optional.ofNullable(team);
     }
 
-    private Set<GameUser> getTeamUsers(GameUser user) {
+    public Set<GameUser> getTeamUsers(GameUser user) {
         final Team team = scoreboard.getEntryTeam(user.getUsername());
         if (team == null) return new HashSet<>();
         return team.getEntries().stream().map(Bukkit::getPlayer).filter(Objects::nonNull).map(GameUserManager::getGameUser).collect(Collectors.toSet());
