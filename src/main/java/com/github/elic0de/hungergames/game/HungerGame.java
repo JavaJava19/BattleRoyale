@@ -50,6 +50,8 @@ public class HungerGame extends AbstractGame {
 
     private GameRecords records;
 
+    private BukkitTask borderTask;
+
     public HungerGame() {
         scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
         border = new GameBorder(this);
@@ -98,7 +100,7 @@ public class HungerGame extends AbstractGame {
         final Location start = border.getCenter().clone().add(border.getSize() / 2, 130, border.getSize() / 2);
         final Location end = border.getCenter().clone().subtract(border.getSize() / 2, -130, border.getSize() / 2);
 
-        Bukkit.getScheduler().runTaskLater(HungerGames.getInstance(), this::startBorder, (long) ((start.distance(end) / 10) * 20));
+        borderTask = Bukkit.getScheduler().runTaskLater(HungerGames.getInstance(), this::startBorder, (long) ((start.distance(end) / 10) * 20));
 
         dragonTrait = new DragonTrait(border);
         Bukkit.getScheduler().runTaskTimer(HungerGames.getInstance(), task -> {
@@ -164,6 +166,7 @@ public class HungerGame extends AbstractGame {
     @Override
     public void reset() {
         if (getPhase() instanceof InGamePhase) setCurrentPhase(0);
+        if (borderTask != null) borderTask.cancel();
         aliveTeams.clear();
         deadPlayers.clear();
         deathChest.reset();
