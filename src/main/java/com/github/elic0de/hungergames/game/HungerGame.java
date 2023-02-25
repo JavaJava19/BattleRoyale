@@ -71,6 +71,10 @@ public class HungerGame extends AbstractGame {
         bossBar.removePlayer(user);
     }
 
+    public void randomTeam() {
+        getPlayers().forEach(user -> scoreboard.getTeams().stream().min(Comparator.comparing(Team::getSize)).ifPresent(team -> team.addEntry(user.getUsername())));
+    }
+
     public void startGame(Player player) {
         if (getPhase() instanceof WaitingPhase) {
             final WorldBorder border = player.getWorld().getWorldBorder();
