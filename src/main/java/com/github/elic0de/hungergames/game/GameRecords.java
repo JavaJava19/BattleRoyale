@@ -74,7 +74,6 @@ public class GameRecords {
         final AtomicInteger position = new AtomicInteger();
 
         // 記録を降順にソートする
-        // 最大で上位10件の記録をリストに追加する
         list.stream().sorted(Collections.reverseOrder(Map.Entry.comparingByValue())).forEach(entry -> {
             rank.put(entry.getKey(), position.incrementAndGet());
         });

@@ -176,6 +176,7 @@ public class HungerGame extends AbstractGame {
     private void showResult() {
         final List<Map.Entry<UUID, Integer>> list = new ArrayList<>(records.getRank().entrySet());
 
+        // 最大で上位10件の記録をブロードキャスト
         list.stream().sorted(Map.Entry.comparingByValue()).limit(10).forEach(entry -> {
             final UUID uuid = entry.getKey();
             final OfflinePlayer player = Bukkit.getOfflinePlayer(uuid);
