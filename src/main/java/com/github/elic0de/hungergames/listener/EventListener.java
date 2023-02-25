@@ -11,11 +11,13 @@ import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.EnderDragon;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -160,5 +162,59 @@ public class EventListener implements Listener {
         }
 
         return rHeart + lHeart.toString();
+    }
+
+    @EventHandler
+    private void onCompassInteract(PlayerInteractEvent event) {
+        if (event.getItem() == null) return;
+        if (!event.getItem().isSimilar(new ItemStack(Material.COMPASS))) return;
+
+        final Player player = event.getPlayer();
+        final Player nearestPlayer = getNearest(player, 300.0);
+        final Material material = event.getMaterial();
+
+        if (player.getCooldown(material) != 0) return;
+
+        final GameUser user = GameUserManager.getGameUser(player);
+
+        player.setCooldown(material, 60);
+
+        if (nearestPlayer == null) {
+            user.sendActionBar("&c範囲300ブロック以内のプレイヤーを見つけられませんでした");
+            return;
+        }
+
+        final String checkPosition = getPosition(player, nearestPlayer);
+
+        player.setCompassTarget(nearestPlayer.getLocation());
+        user.sendActionBar("近くのプレイヤーを指しています。" + checkPosition);
+    }
+
+    public Player getNearest(Player p, Double range) {
+        final GameUser user = GameUserManager.getGameUser(p);
+        double distance = Double.POSITIVE_INFINITY; // To make sure the first
+        // player checked is closest
+        for (Entity entity : p.getNearbyEntities(range, range, range)) {
+            if (entity instanceof Player player) {
+                if (player == p) continue; //Added this check so you don't target yourself.
+                if (player.getGameMode() == GameMode.SPECTATOR) continue;
+                if (game.getTeamUsers(user).contains(GameUserManager.getGameUser(player))) continue;
+                double distanceto = p.getLocation().distance(player.getLocation());
+                if (distanceto > distance)
+                    continue;
+                return player;
+            }
+        }
+        return null;
+    }
+
+    public String getPosition(Player player, Player nearestPlayer) {
+        final Location playerLoc = player.getLocation();
+        final Location nearestPlayerLoc = nearestPlayer.getLocation();
+
+        if (playerLoc.getY() == nearestPlayerLoc.getY()) return "-";
+        if (playerLoc.getY() <=  nearestPlayerLoc.getY()) return "↑";
+
+        return "↓";
     }
 }
