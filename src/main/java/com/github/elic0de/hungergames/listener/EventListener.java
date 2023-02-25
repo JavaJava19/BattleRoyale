@@ -4,6 +4,7 @@ import com.github.elic0de.eliccommon.util.ItemBuilder;
 import com.github.elic0de.hungergames.HungerGames;
 import com.github.elic0de.hungergames.game.HungerGame;
 import com.github.elic0de.hungergames.game.phase.InGamePhase;
+import com.github.elic0de.hungergames.game.phase.WaitingPhase;
 import com.github.elic0de.hungergames.user.GameUser;
 import com.github.elic0de.hungergames.user.GameUserManager;
 import net.md_5.bungee.api.ChatMessageType;
@@ -19,6 +20,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
@@ -45,6 +47,18 @@ public class EventListener implements Listener {
     private void onDeath(PlayerDeathEvent event) {
         final GameUser user = GameUserManager.getGameUser(event.getEntity());
         game.onDeath(user);
+    }
+
+    @EventHandler
+    private void onRespawn(PlayerRespawnEvent event) {
+        event.setRespawnLocation(event.getPlayer().getLocation());
+    }
+
+    @EventHandler
+    private void onBlockBreak(BlockBreakEvent event) {
+        if (game.getPhase() instanceof WaitingPhase) {
+            event.setCancelled(true);
+        }
     }
 
     @EventHandler
