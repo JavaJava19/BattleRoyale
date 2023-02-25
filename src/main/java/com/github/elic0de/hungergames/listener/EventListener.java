@@ -47,6 +47,7 @@ public class EventListener implements Listener {
     private void onDeath(PlayerDeathEvent event) {
         final GameUser user = GameUserManager.getGameUser(event.getEntity());
         game.onDeath(user);
+        event.getDrops().clear();
     }
 
     @EventHandler
