@@ -5,7 +5,6 @@ import de.themoep.inventorygui.GuiStorageElement;
 import de.themoep.inventorygui.InventoryGui;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -34,9 +33,6 @@ public class DeathChestMenu {
     }
 
     public void show() {
-        Bukkit.getScheduler().runTask(HungerGames.getInstance(), () -> {
-            player.closeInventory();
-            menu.show(player);
-        });
+        menu.show(player);
     }
 }
