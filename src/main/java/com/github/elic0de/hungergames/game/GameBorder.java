@@ -12,25 +12,24 @@ public class GameBorder {
 
     private final HungerGame game;
 
-    private final GameBossBar bossBar;
     private final WorldBorder border = Bukkit.getWorlds().get(0).getWorldBorder();
-    private final double MAX_BORDER_SIZE = 1000;
 
     private BukkitTask borderTask;
+
+    private double MAX_BORDER_SIZE = -0;
 
     private final AtomicLong borderTicks = new AtomicLong();
 
     public GameBorder(HungerGame game) {
         this.game = game;
-        this.bossBar = game.getBossBar();
         border.setDamageBuffer(2);
         border.setDamageAmount(0.5D);
-        border.setSize(MAX_BORDER_SIZE);
     }
 
     public void start() {
         reset();
         double MIN_BORDER_SIZE = 16;
+        MAX_BORDER_SIZE = border.getSize();
         border.setSize(MIN_BORDER_SIZE, 900);
 
         final long PERIOD = 20;
@@ -41,12 +40,12 @@ public class GameBorder {
             @Override
             public void run() {
                 if (borderTicks.incrementAndGet() >= timeInSeconds) {
-                    bossBar.hide();
+                    game.getBossBar().hide();
                     cancel();
                     return;
                 }
-                bossBar.setBossBar("残りのプレイヤー数: &6" + (game.getPlayers().size() - game.getDeadPlayers().size()));
-                bossBar.setProgress((double) Math.max(timeInSeconds - borderTicks.get(), 0)/timeInSeconds);
+                game.getBossBar().setBossBar("残りのプレイヤー数: &6" + game.getAlivePlayersSize());
+                game.getBossBar().setProgress((double) Math.max(timeInSeconds - borderTicks.get(), 0)/timeInSeconds);
             }
         }.runTaskTimer(HungerGames.getInstance(), 0, PERIOD);
     }
@@ -56,9 +55,9 @@ public class GameBorder {
     }
 
     public void reset() {
-        border.setSize(MAX_BORDER_SIZE);
+        if (MAX_BORDER_SIZE != -0) border.setSize(MAX_BORDER_SIZE);
         if (borderTask != null) borderTask.cancel();
         borderTicks.set(0);
-        bossBar.hide();
+        game.getBossBar().hide();
     }
 }
