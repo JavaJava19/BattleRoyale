@@ -100,6 +100,11 @@ public class EventListener implements Listener {
     @EventHandler
     private void onDamage(EntityDamageEvent event) {
         if (event.getEntity() instanceof Player) {
+            if (game.getPhase() instanceof WaitingPhase) {
+                event.setCancelled(true);
+                return;
+            }
+
             switch (event.getCause()) {
                 case FALL, FLY_INTO_WALL -> event.setCancelled(true);
             }
@@ -145,16 +150,16 @@ public class EventListener implements Listener {
         int maxHealth = (int) player.getMaxHealth() / 2;
         int lostHealth = maxHealth - currentHealth;
 
-        String rHeart = "";
-        String lHeart = "";
+        StringBuilder rHeart = new StringBuilder();
+        StringBuilder lHeart = new StringBuilder();
 
         for (int i = 0; i < currentHealth; i++) {
-            rHeart = rHeart + ChatColor.RED + "❤";
+            rHeart.append(ChatColor.RED).append("❤");
         }
         for (int i = 0; i < lostHealth; i++) {
-            lHeart = lHeart + ChatColor.GRAY + "❤";
+            lHeart.append(ChatColor.GRAY).append("❤");
         }
 
-        return rHeart + lHeart;
+        return rHeart + lHeart.toString();
     }
 }
