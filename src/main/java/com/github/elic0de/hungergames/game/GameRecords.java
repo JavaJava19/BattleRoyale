@@ -4,10 +4,11 @@ import com.github.elic0de.hungergames.user.GameUser;
 import de.themoep.minedown.MineDown;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class GameRecords {
 
-    //全記録
+    // 全記録
     private final Map<UUID, Long> records = new HashMap<>();
 
     private final HungerGame game;
@@ -30,7 +31,9 @@ public class GameRecords {
     public void addKill(GameUser user){
         final UUID uuid = user.getUniqueId();
         if (containsRecord(user)) {
-            final long kills = records.get(uuid);
+            final long kills = records.get(uuid) + 1;
+            records.put(uuid, kills);
+            sortAsync();
 
             if (kills >= 3) {
                 if (killLeader != null) {
@@ -41,12 +44,11 @@ public class GameRecords {
                         }
                     }
                 } else {
-                    game.broadcast(new MineDown(String.format("&c%s&rが&c3キルで新しいキルリーダになりました", user.getUsername())));
+                    game.broadcast(new MineDown(String.format("&c%s&rが&c3&rキルで新しいキルリーダになりました", user.getUsername())));
                     killLeader = uuid;
                 }
             }
 
-            records.put(uuid, kills + 1);
             return;
         }
         records.put(uuid, 1L);
@@ -57,8 +59,8 @@ public class GameRecords {
         return records.containsKey(user.getUniqueId());
     }
 
-    public long personalBest(GameUser user){
-        return records.getOrDefault(user.getUniqueId(), 0L);
+    public long personalBest(UUID uuid){
+        return records.getOrDefault(uuid, 0L);
     }
 
     public void removeAllRecord() {
@@ -67,19 +69,18 @@ public class GameRecords {
         sortAsync();
     }
 
-    public void sortAsync(){
+    private void sortAsync(){
         final List<Map.Entry<UUID, Long>> list = new ArrayList<>(records.entrySet());
+        final AtomicInteger position = new AtomicInteger();
 
-        //記録を昇順にソートする
-        list.sort(Map.Entry.comparingByValue());
+        // 記録を降順にソートする
+        // 最大で上位10件の記録をリストに追加する
+        list.stream().sorted(Collections.reverseOrder(Map.Entry.comparingByValue())).forEach(entry -> {
+            rank.put(entry.getKey(), position.incrementAndGet());
+        });
+    }
 
-        //最大で上位10件の記録をリストに追加する
-        for(int index = 0; index < records.size(); index++){
-            //ソート済みリストから記録を取得する
-            Map.Entry<UUID, Long> record = list.get(index);
-
-            UUID uuid = record.getKey();
-            rank.put(uuid,index + 1);
-        }
+    public Map<UUID, Integer> getRank() {
+        return rank;
     }
 }
