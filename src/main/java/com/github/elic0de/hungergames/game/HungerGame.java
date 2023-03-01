@@ -125,7 +125,7 @@ public class HungerGame extends AbstractGame {
     }
 
     public void dismountWithTeam(GameUser user) {
-        getTeamUsers(user).stream().filter(user1 -> user1 != user).forEach(user1 -> user.getPlayer().addPassenger(user1.getPlayer()));
+        Bukkit.getScheduler().runTask(HungerGames.getInstance(), () -> getTeamUsers(user).stream().filter(user1 -> user1 != user).forEach(user1 -> user.getPlayer().addPassenger(user1.getPlayer())));
     }
 
     public void onDeath(GameUser user) {

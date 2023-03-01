@@ -24,7 +24,7 @@ public class DragonTrait extends Trait {
         final Location origin =  worldBorder.getCenter();
         final double gap = worldBorder.getSize()/2;
         final Location start = new Location(origin.getWorld(), origin.getX() + gap, 130, origin.getZ() + gap);
-        for(int i = 0; i <= worldBorder.getSize(); i+=50){
+        for(int i = 0; i <= worldBorder.getSize(); i+=45){
             locations.put(index.incrementAndGet(), start.clone().subtract(i, 0, i));
         }
         index.set(1);
