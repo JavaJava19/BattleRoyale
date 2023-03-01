@@ -39,6 +39,10 @@ public class DeathChest {
         }
     }
 
+    public void updateChestContents(Block block, ItemStack[] contents) {
+        if (chestLocations.containsKey(block)) chestLocations.put(block, contents);
+    }
+
     public boolean containsDeathChest(Block block) {
         return  chestLocations.containsKey(block);
     }

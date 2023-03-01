@@ -4,9 +4,12 @@ import com.github.elic0de.hungergames.HungerGames;
 import de.themoep.inventorygui.GuiStorageElement;
 import de.themoep.inventorygui.InventoryGui;
 import org.bukkit.Bukkit;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.Optional;
 
 public class DeathChestMenu {
 
@@ -28,8 +31,13 @@ public class DeathChestMenu {
         Inventory inv = Bukkit.createInventory(null, 54);
         inv.setContents(contents);
         menu.addElement(new GuiStorageElement('p', inv));
-        menu.setCloseAction(close -> false);
-
+        menu.setCloseAction(close -> {
+            Block block = inv.getLocation().getBlock();
+            if (block != null) {
+                HungerGames.getInstance().getGame().getDeathChest().updateChestContents(block, inv.getContents());
+            }
+            return false;
+        });
     }
 
     public void show() {
