@@ -81,7 +81,7 @@ public class HungerGame extends AbstractGame {
     public void startGame(Player player) {
         if (getPhase() instanceof WaitingPhase) {
             final WorldBorder border = player.getWorld().getWorldBorder();
-            final Location start = border.getCenter().clone().add(border.getSize() / 2, 130, border.getSize() / 2);
+            final Location start = border.getCenter().clone().add((border.getSize() / 2), 130, border.getSize() / 2);
 
             getPlayers(GameUser.class).forEach(user -> {
                 // プレイヤーが所属しているチームを生存しているチームとして登録
