@@ -115,6 +115,19 @@ public class EventListener implements Listener {
     }
 
     @EventHandler
+    private void onTest(EntityDamageByEntityEvent event) {
+        if (game.getPhase() instanceof InGamePhase) {
+            if (event.getEntity() instanceof Player player) {
+                if (player.isInsideVehicle()) {
+                    if (player.getVehicle() instanceof EnderDragon) {
+                        event.setCancelled(true);
+                    }
+                }
+            }
+        }
+    }
+
+    @EventHandler
     private void onInteract(PlayerInteractEvent event) {
         final Block block = event.getClickedBlock();
         if (block == null) return;
