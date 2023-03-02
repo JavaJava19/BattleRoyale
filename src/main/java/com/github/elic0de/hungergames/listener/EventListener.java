@@ -138,6 +138,16 @@ public class EventListener implements Listener {
     }
 
     @EventHandler
+    private void blockBreak(BlockBreakEvent event) {
+        if (game.getPhase() instanceof InGamePhase) {
+            final Block block = event.getBlock();
+            if (block.getType() == Material.CHEST && game.getDeathChest().containsDeathChest(block)) {
+                game.getDeathChest().breakDeathChest(block);
+            }
+        }
+    }
+
+    @EventHandler
     private void onTeamChat(AsyncPlayerChatEvent event) {
         if (game.getPhase() instanceof InGamePhase) {
             event.setCancelled(true);
