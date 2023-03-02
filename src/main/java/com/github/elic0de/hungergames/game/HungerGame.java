@@ -55,6 +55,18 @@ public class HungerGame extends AbstractGame {
 
     private BukkitTask borderTask;
 
+    private final List<ChatColor> colors = List.of(
+            ChatColor.RED,
+            ChatColor.BLUE,
+            ChatColor.AQUA,
+            ChatColor.YELLOW,
+            ChatColor.GOLD,
+            ChatColor.GREEN,
+            ChatColor.LIGHT_PURPLE,
+            ChatColor.WHITE,
+            ChatColor.GRAY
+    );
+
     public HungerGame() {
         scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
         border = new GameBorder(this);
@@ -70,6 +82,30 @@ public class HungerGame extends AbstractGame {
     public void leave(GameUser user) {
         super.leave(user);
         bossBar.removePlayer(user);
+        getUserTeam(user).ifPresent(team -> team.removeEntry(user.getUsername()));
+    }
+
+
+    public void createTeams(int count) {
+        final AtomicInteger colorIndex = new AtomicInteger();
+        int teamSize = Math.round(12/count);
+
+        // 既存のチームを削除
+        scoreboard.getTeams().forEach(Team::unregister);
+        // 人数に応じてチームを作る
+        for(int i = 0; i < teamSize; i++) {
+            if (colorIndex.get() < colors.size()) {
+                final ChatColor color = colors.get(colorIndex.get());
+                final String teamName = scoreboard.getTeam(color.name()) != null ? UUID.randomUUID().toString().substring(0, 6) : color.name();
+                final Team team = scoreboard.registerNewTeam(teamName);
+
+                team.setColor(color);
+                team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.FOR_OWN_TEAM);
+                colorIndex.incrementAndGet();
+                continue;
+            }
+            colorIndex.set(0);
+        }
     }
 
     public void randomTeam() {

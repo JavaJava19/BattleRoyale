@@ -25,6 +25,12 @@ public class HungerCommand extends BaseCommand {
     @Subcommand("team random")
     private void random(Player player) {
         game.randomTeam();
-        player.sendMessage("プレイヤーを既存のチームにランダムに振り分けます");
+        player.sendMessage("既存のチームにプレイヤーをランダムに振り分けます");
+    }
+
+    @Subcommand("team create")
+    private void create(Player player, int count) {
+        game.createTeams(count);
+        player.sendMessage("オンラインプレイヤー数に応じて "+ count + "プレイヤーのチームを作ります");
     }
 }
