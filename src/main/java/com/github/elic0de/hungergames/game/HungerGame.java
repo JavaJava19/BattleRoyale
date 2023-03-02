@@ -87,7 +87,7 @@ public class HungerGame extends AbstractGame {
 
     public void createTeams(int count) {
         final AtomicInteger colorIndex = new AtomicInteger();
-        int teamSize = Math.round(12/count);
+        int teamSize = Math.round(getPlayers().size()/count);
 
         // 既存のチームを削除
         scoreboard.getTeams().forEach(Team::unregister);
@@ -99,7 +99,7 @@ public class HungerGame extends AbstractGame {
                 final Team team = scoreboard.registerNewTeam(teamName);
 
                 team.setColor(color);
-                team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.FOR_OWN_TEAM);
+                team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.FOR_OTHER_TEAMS);
                 colorIndex.incrementAndGet();
                 continue;
             }
@@ -195,7 +195,7 @@ public class HungerGame extends AbstractGame {
         if (getPhase() instanceof InGamePhase) {
             aliveTeams.stream().findAny().ifPresent(team -> {
                 broadcast(new MineDown(String.format("%sのチームが勝利しました", team.getName())));
-                title(String.format("%s 勝利しました", team.getName()), "");
+                title(String.format("%sの勝利", team.getName()), "");
             });
             endGame();
         }
