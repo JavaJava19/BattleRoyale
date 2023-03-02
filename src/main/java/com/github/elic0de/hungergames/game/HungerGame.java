@@ -47,7 +47,7 @@ public class HungerGame extends AbstractGame {
     @Getter
     private final Set<String> deadPlayers = new HashSet<>();
 
-    private final Set<UUID> rejoinPlayers = new HashSet<>();
+    private final Set<String> rejoinPlayers = new HashSet<>();
 
     private DragonTrait dragonTrait;
 
@@ -82,7 +82,6 @@ public class HungerGame extends AbstractGame {
     public void leave(GameUser user) {
         super.leave(user);
         bossBar.removePlayer(user);
-        getUserTeam(user).ifPresent(team -> team.removeEntry(user.getUsername()));
     }
 
 
@@ -255,7 +254,7 @@ public class HungerGame extends AbstractGame {
 
     public void rejoin(GameUser user) {
         if (getPhase() instanceof InGamePhase) {
-            if (rejoinPlayers.contains(user.getUniqueId())) {
+            if (rejoinPlayers.contains(user.getUsername())) {
                 final Player player = user.getPlayer();
                 final ItemStack chestPlate = player.getInventory().getChestplate();
                 if (chestPlate == null) return;
@@ -265,7 +264,7 @@ public class HungerGame extends AbstractGame {
                     player.getPassengers().forEach(player::removePassenger);
                     player.setGameMode(GameMode.SURVIVAL);
                 }
-                rejoinPlayers.remove(user.getUniqueId());
+                rejoinPlayers.remove(user.getUsername());
                 return;
             }
             user.getPlayer().setGameMode(GameMode.SPECTATOR);
@@ -275,7 +274,7 @@ public class HungerGame extends AbstractGame {
     public void addRejoinPlayer(GameUser user) {
         // 死んでいる場合は再参加無効に
         if (deadPlayers.contains(user.getUsername())) return;
-        rejoinPlayers.add(user.getUniqueId());
+        rejoinPlayers.add(user.getUsername());
     }
 
     public boolean checkTeamDead(GameUser user) {
@@ -306,6 +305,8 @@ public class HungerGame extends AbstractGame {
         aliveTeams.forEach(team -> {
             for (String playerName : team.getEntries()) {
                 if (deadPlayers.contains(playerName)) continue;
+                if (rejoinPlayers.contains(playerName)) continue;
+                if (Bukkit.getPlayer(playerName) == null) continue;
                 playersSize.incrementAndGet();
             }
         });
