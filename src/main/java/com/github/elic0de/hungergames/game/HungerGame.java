@@ -301,16 +301,10 @@ public class HungerGame extends AbstractGame {
         return team.getEntries().stream().map(Bukkit::getPlayer).filter(Objects::nonNull).map(GameUserManager::getGameUser).collect(Collectors.toSet());
     }
 
-    public int getAlivePlayersSize() {
-        final AtomicInteger playersSize = new AtomicInteger();
-        aliveTeams.forEach(team -> {
-            for (String playerName : team.getEntries()) {
-                if (deadPlayers.contains(playerName)) continue;
-                playersSize.incrementAndGet();
-            }
-        });
-
-        return playersSize.get();
+    public long getAlivePlayersSize() {
+        return GameUserManager.getOnlineUsers().stream()
+                .filter(user -> !deadPlayers.contains(user.getUsername()))
+                .count();
     }
 
     @Override
