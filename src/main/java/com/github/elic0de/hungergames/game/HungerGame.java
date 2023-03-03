@@ -126,6 +126,9 @@ public class HungerGame extends AbstractGame {
                 user.getPlayer().getInventory().clear();
                 user.getPlayer().teleport(start);
                 user.getPlayer().setGameMode(GameMode.SPECTATOR);
+
+                // 10秒のクールダウン
+                user.getPlayer().setCooldown(Material.COMMAND_BLOCK, 10 * 20);
             });
             nextPhase();
             spawnEnderDragon(player);
