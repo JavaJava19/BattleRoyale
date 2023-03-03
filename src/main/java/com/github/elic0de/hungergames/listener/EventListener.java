@@ -153,7 +153,9 @@ public class EventListener implements Listener {
             if (block.getType() == Material.CHEST && game.getDeathChest().containsDeathChest(block)) {
                 game.getDeathChest().breakDeathChest(block);
             }
+            return;
         }
+        event.setCancelled(true);
     }
 
     @EventHandler
