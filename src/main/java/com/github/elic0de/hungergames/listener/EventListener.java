@@ -101,10 +101,8 @@ public class EventListener implements Listener {
     private void onMove(PlayerMoveEvent event) {
         final Player player = event.getPlayer();
         if (event.getFrom().getBlock().getRelative(BlockFace.DOWN).getType() == Material.AIR && event.getTo().getBlock().getRelative(BlockFace.DOWN).getType() != Material.AIR) {
-            final ItemStack chestPlate = player.getInventory().getChestplate();
-            if (chestPlate == null) return;
-            if (chestPlate.getType() == Material.ELYTRA) {
-                player.getInventory().setChestplate(null);
+            if (player.getInventory().contains(Material.ELYTRA)) {
+                player.getInventory().remove(Material.ELYTRA);
                 player.getInventory().addItem(ItemBuilder.of(Material.BREAD).amount(20).build());
                 player.getPassengers().forEach(player::removePassenger);
             }
