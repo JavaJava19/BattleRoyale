@@ -48,8 +48,10 @@ public class EventListener implements Listener {
 
     @EventHandler
     private void onDeath(PlayerDeathEvent event) {
+        final String message = ChatColor.RED + event.getDeathMessage();
         final GameUser user = GameUserManager.getGameUser(event.getEntity());
         game.onDeath(user);
+        event.setDeathMessage(message);
         event.getDrops().clear();
     }
 
