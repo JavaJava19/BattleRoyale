@@ -71,6 +71,11 @@ public class EventListener implements Listener {
             if (event.getEntity() instanceof Player player) {
                 if (game.getDeadPlayers().contains(player.getName())) return;
                 if (player.getCooldown(Material.COMMAND_BLOCK) != 0) {
+                    if (player.getCooldown(Material.BARRIER) == 0) {
+                        final int cooldown = player.getCooldown(Material.COMMAND_BLOCK) / 20;
+                        player.sendMessage(ChatColor.RED + "残り" + cooldown + "秒で降りること可能です");
+                        player.setCooldown(Material.BARRIER, 20);
+                    }
                     event.setCancelled(true);
                     return;
                 }
