@@ -21,6 +21,12 @@ public class GameUser extends OnlineUser {
         player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder(coloredMessage).create());
     }
 
+    public void clearEffectAndHeal() {
+        player.getActivePotionEffects().clear();
+        player.setHealth(20);
+        player.setFoodLevel(20);
+    }
+
     @Override
     public @NotNull Player getPlayer() {
         return player;

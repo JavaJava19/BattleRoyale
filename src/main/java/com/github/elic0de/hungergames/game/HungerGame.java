@@ -122,6 +122,7 @@ public class HungerGame extends AbstractGame {
                 // プレイヤーが所属しているチームを生存しているチームとして登録
                 // チームに所属していなかったら観戦者とする
                 getUserTeam(user).ifPresentOrElse(aliveTeams::add, () -> deadPlayers.add(user.getUsername()));
+                user.clearEffectAndHeal();
 
                 user.getPlayer().getInventory().clear();
                 user.getPlayer().teleport(start);
