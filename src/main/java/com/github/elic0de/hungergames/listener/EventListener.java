@@ -70,7 +70,7 @@ public class EventListener implements Listener {
         if (game.getPhase() instanceof InGamePhase) {
             if (event.getEntity() instanceof Player player) {
                 if (game.getDeadPlayers().contains(player.getName())) return;
-                if (player.getCooldown(Material.COMMAND_BLOCK) == 0) {
+                if (player.getCooldown(Material.COMMAND_BLOCK) != 0) {
                     event.setCancelled(true);
                     return;
                 }
