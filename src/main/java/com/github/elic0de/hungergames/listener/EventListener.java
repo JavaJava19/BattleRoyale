@@ -7,6 +7,7 @@ import com.github.elic0de.hungergames.game.phase.InGamePhase;
 import com.github.elic0de.hungergames.game.phase.WaitingPhase;
 import com.github.elic0de.hungergames.user.GameUser;
 import com.github.elic0de.hungergames.user.GameUserManager;
+import de.themoep.minedown.MineDown;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import org.bukkit.ChatColor;
@@ -75,7 +76,7 @@ public class EventListener implements Listener {
                 if (player.getCooldown(Material.COMMAND_BLOCK) != 0) {
                     if (player.getCooldown(Material.BARRIER) == 0) {
                         final int cooldown = player.getCooldown(Material.COMMAND_BLOCK) / 20;
-                        player.sendMessage(ChatColor.RED + "残り" + cooldown + "秒で降りること可能です");
+                        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, MineDown.parse(ChatColor.RED + "残り" + cooldown + "秒で降りること可能です"));
                         player.setCooldown(Material.BARRIER, 20);
                     }
                     event.setCancelled(true);
