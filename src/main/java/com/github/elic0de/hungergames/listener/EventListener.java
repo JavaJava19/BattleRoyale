@@ -5,15 +5,14 @@ import com.github.elic0de.hungergames.HungerGames;
 import com.github.elic0de.hungergames.game.HungerGame;
 import com.github.elic0de.hungergames.game.phase.InGamePhase;
 import com.github.elic0de.hungergames.game.phase.WaitingPhase;
+import com.github.elic0de.hungergames.modifier.ModifierManager;
+import com.github.elic0de.hungergames.modifier.modifiers.GameModifier;
 import com.github.elic0de.hungergames.user.GameUser;
 import com.github.elic0de.hungergames.user.GameUserManager;
 import de.themoep.minedown.MineDown;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.ComponentBuilder;
-import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Arrow;
@@ -29,7 +28,13 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.spigotmc.event.entity.EntityDismountEvent;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
 
 public class EventListener implements Listener {
 
@@ -38,6 +43,176 @@ public class EventListener implements Listener {
     @EventHandler
     private void onJoin(PlayerJoinEvent event) {
         game.join(GameUserManager.getGameUser(event.getPlayer()));
+        //GameUserManager.getGameUser(event.getPlayer()).sendTitle("&c[               Game Modifier               ]", "A game modifier is being picked!");
+        new ModifierManager(game).modify();
+        //startSlotAnimationTitle(event.getPlayer());
+        //startGameModifierAnimation(event.getPlayer(), List.of("Magic Power", "UHC True", "Flower Power"));
+        /*        sendAnimatedTitle(event.getPlayer(), new String[]{
+                "&c[ Game Modifier ]",
+                "&6[  Game Modifier  ]",
+                "&c[   Game Modifier   ]",
+                "&6[    Game Modifier    ]",
+                "&c[     Game Modifier     ]",
+                "&6[      Game Modifier      ]",
+                "&c[       Game Modifier       ]",
+                "&6[        Game Modifier        ]",
+                "&c[         Game Modifier         ]",
+                "&6[          Game Modifier          ]",
+                "&c[           Game Modifier           ]",
+                "&6[            Game Modifier            ]",
+                "&c[             Game Modifier             ]",
+                "&c[               Game Modifier               ]",
+                "&6[              Game Modifier              ]",
+                "&c[             Game Modifier             ]",
+                "&6[            Game Modifier            ]",
+                "&c[           Game Modifier           ]",
+                "&6[          Game Modifier          ]",
+                "&c[         Game Modifier         ]",
+                "&6[        Game Modifier        ]",
+                "&c[       Game Modifier       ]",
+                "&6[      Game Modifier      ]",
+                "&c[     Game Modifier     ]",
+                "&6[    Game Modifier    ]",
+                "&c[   Game Modifier   ]",
+                "&6[  Game Modifier  ]",
+                "&c[ Game Modifier ]",
+                "&6[Game Modifier]",
+        }, 2);*/
+/*        sendRandomRouletteTitle(event.getPlayer(), new String[]{
+                "&c[ Game Modifier ]",
+                "&6[  Game Modifier  ]",
+                "&c[   Game Modifier   ]",
+                "&6[    Game Modifier    ]",
+                "&c[     Game Modifier     ]",
+                "&6[      Game Modifier      ]",
+                "&c[       Game Modifier       ]",
+                "&6[        Game Modifier        ]",
+                "&c[         Game Modifier         ]",
+                "&6[          Game Modifier          ]",
+                "&c[           Game Modifier           ]",
+                "&6[            Game Modifier            ]",
+                "&c[             Game Modifier             ]",
+                "&c[               Game Modifier               ]",
+                "&6[              Game Modifier              ]",
+                "&c[             Game Modifier             ]",
+                "&6[            Game Modifier            ]",
+                "&c[           Game Modifier           ]",
+                "&6[          Game Modifier          ]",
+                "&c[         Game Modifier         ]",
+                "&6[        Game Modifier        ]",
+                "&c[       Game Modifier       ]",
+                "&6[      Game Modifier      ]",
+                "&c[     Game Modifier     ]",
+                "&6[    Game Modifier    ]",
+                "&c[   Game Modifier   ]",
+                "&6[  Game Modifier  ]",
+                "&c[ Game Modifier ]",
+                "&6[Game Modifier]",
+        }, 2,10);*/
+    }
+
+    public void sendRandomRouletteTitle(Player player, String[] frames, int minCycles, int maxCycles) {
+        int cycleCount = new Random().nextInt(maxCycles - minCycles + 1) + minCycles;
+
+        new BukkitRunnable() {
+            int frameIndex = 0;
+            int cyclesCompleted = 0;
+            int delay = 5;
+
+            @Override
+            public void run() {
+                if (cyclesCompleted >= cycleCount) {
+                    player.sendTitle(frames[frameIndex], null, 0, 70, 0);
+                    this.cancel();
+                } else {
+                    if (delay <= 0) {
+                        player.sendTitle(frames[frameIndex], null, 0, 70, 0);
+
+                        frameIndex++;
+                        if (frameIndex >= frames.length) {
+                            frameIndex = 0;
+                            cyclesCompleted++;
+                        }
+
+                        delay = 5;
+                    } else {
+                        player.sendTitle(frames[new Random().nextInt(frames.length)], null, 0, 70, 0);
+                        delay--;
+                    }
+                }
+            }
+        }.runTaskTimer(HungerGames.getInstance(), 0L, 1L);
+    }
+    private void sendAnimatedTitle(Player player, String[] frames, int delay) {
+        new BukkitRunnable() {
+            int frame = 0;
+
+            @Override
+            public void run() {
+                player.sendTitle(ChatColor.translateAlternateColorCodes('&', frames[frame]), "A game modifier is being picked!", 0, 70, 0);
+                //player.playSound(player.getLocation(), Sound.BLOCK_PISTON_EXTEND, 1f, 1f);
+                frame++;
+
+                if (frame == frames.length) {
+                    cancel();
+                }
+            }
+        }.runTaskTimer(HungerGames.getInstance(), 0L, delay);
+    }
+
+    public void startGameModifierAnimation(Player player, List<String> modifiers) {
+        List<String> colors = Arrays.asList("§a", "§e", "§c"); // Green, Yellow, Red
+        List<String> frames = new ArrayList<>();
+
+        // Generate the animation frames
+        for (String modifier : modifiers) {
+            String color = colors.get(new Random().nextInt(colors.size()));
+            String frame = color + modifier;
+            frames.add(frame);
+        }
+
+        new BukkitRunnable() {
+            int frameIndex = 0;
+
+            @Override
+            public void run() {
+                player.sendTitle(frames.get(frameIndex), null, 0, 20, 0);
+
+                frameIndex++;
+                if (frameIndex >= frames.size()) {
+                    frameIndex = 0;
+                }
+            }
+        }.runTaskTimer(HungerGames.getInstance(), 0L, 10L);
+    }
+
+    public void startSlotAnimationTitle(Player player) {
+        List<String> symbols = Arrays.asList("§b§l⬛", "§6§l⬛", "§f§l⬛"); // Diamond, Gold, Iron
+        List<String> frames = Arrays.asList(
+                symbols.get(0) + " " + symbols.get(1) + " " + symbols.get(2),
+                symbols.get(1) + " " + symbols.get(2) + " " + symbols.get(0),
+                symbols.get(2) + " " + symbols.get(0) + " " + symbols.get(1)
+        );
+
+        new BukkitRunnable() {
+            int frameIndex = 0;
+            int cycles = new Random().nextInt(3) + 3; // Random cycle count between 3 and 5
+
+            @Override
+            public void run() {
+                player.sendTitle("§6§lSLOTS", frames.get(frameIndex), 0, 20, 0);
+
+                frameIndex++;
+                if (frameIndex >= frames.size()) {
+                    frameIndex = 0;
+                    cycles--;
+
+                    if (cycles <= 0) {
+                        cancel();
+                    }
+                }
+            }
+        }.runTaskTimer(HungerGames.getInstance(), 0L, 5L);
     }
 
     @EventHandler
@@ -102,8 +277,10 @@ public class EventListener implements Listener {
     private void onMove(PlayerMoveEvent event) {
         final Player player = event.getPlayer();
         if (event.getFrom().getBlock().getRelative(BlockFace.DOWN).getType() == Material.AIR && event.getTo().getBlock().getRelative(BlockFace.DOWN).getType() != Material.AIR) {
-            if (player.getInventory().contains(Material.ELYTRA)) {
-                player.getInventory().remove(Material.ELYTRA);
+            final ItemStack chestPlate = player.getInventory().getChestplate();
+            if (chestPlate == null) return;
+            if (chestPlate.getType() == Material.ELYTRA) {
+                player.getInventory().setChestplate(null);
                 player.getInventory().addItem(ItemBuilder.of(Material.BREAD).amount(20).build());
                 player.getPassengers().forEach(player::removePassenger);
             }
