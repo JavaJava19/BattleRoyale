@@ -193,6 +193,7 @@ public class HungerGame extends AbstractGame {
         if (getPhase() instanceof InGamePhase) {
             aliveTeams.stream().findAny().ifPresent(team -> {
                 broadcast(new MineDown(String.format("%sのチームが勝利しました", team.getName())));
+                team.getEntries().forEach(s -> broadcast(new MineDown("&6" + team.getName())));
                 title(String.format("%sの勝利", team.getName()), "");
             });
             endGame();
