@@ -84,7 +84,9 @@ public class EventListener implements Listener {
                 }
                 if (event.getDismounted() instanceof EnderDragon) {
                     game.dismountWithTeam(GameUserManager.getGameUser(player));
-                    player.getInventory().addItem(ItemBuilder.of(Material.FIREWORK_ROCKET).build());
+                    if (!player.getInventory().contains(Material.FIREWORK_ROCKET))
+                        player.getInventory().addItem(ItemBuilder.of(Material.FIREWORK_ROCKET).build());
+
                     player.getInventory().setChestplate(ItemBuilder.of(Material.ELYTRA).build());
                     player.setGliding(true);
                 }
