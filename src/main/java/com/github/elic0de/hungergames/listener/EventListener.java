@@ -10,10 +10,7 @@ import com.github.elic0de.hungergames.user.GameUserManager;
 import de.themoep.minedown.MineDown;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.ComponentBuilder;
-import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Arrow;
@@ -30,6 +27,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityToggleGlideEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.*;
+import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.inventory.ItemStack;
 import org.spigotmc.event.entity.EntityDismountEvent;
 
@@ -100,6 +98,12 @@ public class EventListener implements Listener {
                 player.setGameMode(GameMode.SURVIVAL);
             }
         }
+    }
+
+    @EventHandler
+    public void onWorldLoad(WorldLoadEvent event) {
+        final World world = event.getWorld();
+        world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
     }
 
     @EventHandler
