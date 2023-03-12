@@ -9,6 +9,7 @@ import com.github.elic0de.hungergames.chest.DeathChest;
 import com.github.elic0de.hungergames.dragon.DragonTrait;
 import com.github.elic0de.hungergames.game.phase.InGamePhase;
 import com.github.elic0de.hungergames.game.phase.WaitingPhase;
+import com.github.elic0de.hungergames.modifier.ModifierManager;
 import com.github.elic0de.hungergames.user.GameUser;
 import com.github.elic0de.hungergames.user.GameUserManager;
 import de.themoep.minedown.MineDown;
@@ -37,6 +38,9 @@ public class HungerGame extends AbstractGame {
     private final DeathChest deathChest;
 
     @Getter
+    private final ModifierManager modifierManager;
+
+    @Getter
     private final GameBossBar bossBar = new GameBossBar();
 
     private final GameBorder border;
@@ -52,26 +56,14 @@ public class HungerGame extends AbstractGame {
     private DragonTrait dragonTrait;
 
     private GameRecords records;
-
     private BukkitTask borderTask;
-
-    private final List<ChatColor> colors = List.of(
-            ChatColor.RED,
-            ChatColor.BLUE,
-            ChatColor.AQUA,
-            ChatColor.YELLOW,
-            ChatColor.GOLD,
-            ChatColor.GREEN,
-            ChatColor.LIGHT_PURPLE,
-            ChatColor.WHITE,
-            ChatColor.GRAY
-    );
 
     public HungerGame() {
         scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
         border = new GameBorder(this);
         deathChest = new DeathChest();
         records = new GameRecords(this);
+        modifierManager = new ModifierManager(this);
     }
 
     public void join(GameUser user) {
@@ -86,24 +78,17 @@ public class HungerGame extends AbstractGame {
 
 
     public void createTeams(int count) {
-        final AtomicInteger colorIndex = new AtomicInteger();
-        int teamSize = Math.round(getPlayers().size()/count);
+        int teamSize = Math.max(Math.round(getPlayers().size()/count), 1);
 
         // 既存のチームを削除
         scoreboard.getTeams().forEach(Team::unregister);
         // 人数に応じてチームを作る
         for(int i = 0; i < teamSize; i++) {
-            if (colorIndex.get() < colors.size()) {
-                final ChatColor color = colors.get(colorIndex.get());
-                final String teamName = scoreboard.getTeam(color.name()) != null ? UUID.randomUUID().toString().substring(0, 6) : color.name();
-                final Team team = scoreboard.registerNewTeam(teamName);
+            final String teamName = scoreboard.getTeam(String.valueOf(i)) != null ? UUID.randomUUID().toString().substring(0, 6) : String.valueOf(i);
+            final Team team = scoreboard.registerNewTeam(teamName);
 
-                team.setColor(color);
-                team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.FOR_OTHER_TEAMS);
-                colorIndex.incrementAndGet();
-                continue;
-            }
-            colorIndex.set(0);
+            team.setPrefix(String.format("[%s] ", i));
+            team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.FOR_OTHER_TEAMS);
         }
     }
 
@@ -113,10 +98,19 @@ public class HungerGame extends AbstractGame {
         users.forEach(user -> scoreboard.getTeams().stream().min(Comparator.comparing(Team::getSize)).ifPresent(team -> team.addEntry(user.getUsername())));
     }
 
-    public void startGame(Player player) {
+
+    public void teleportStartLocation(Player player) {
+        final WorldBorder border = player.getWorld().getWorldBorder();
+        final Location start = border.getCenter().clone().add((border.getSize() / 2) - 2, 130, (border.getSize() / 2) - 2);
+        player.teleport(start);
+    }
+
+    public void startGame(Player player, boolean modifier) {
         if (getPhase() instanceof WaitingPhase) {
             final WorldBorder border = player.getWorld().getWorldBorder();
             final Location start = border.getCenter().clone().add((border.getSize() / 2) - 2, 130, (border.getSize() / 2) - 2);
+            // modifierが有効の場合、ランダムにmodifierを加える
+            // if (modifier) modifierManager.modify();
 
             getPlayers(GameUser.class).forEach(user -> {
                 // プレイヤーが所属しているチームを生存しているチームとして登録
@@ -235,6 +229,7 @@ public class HungerGame extends AbstractGame {
         rejoinPlayers.clear();
         border.reset();
         records.removeAllRecord();
+        modifierManager.reset();
         if (dragonTrait != null) dragonTrait.reset();
     }
 
