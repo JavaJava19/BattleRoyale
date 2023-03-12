@@ -106,11 +106,6 @@ public class EventListener implements Listener {
         world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
     }
 
-
-    @EventHandler
-    private void onLogin(PlayerLoginEvent event) {
-        System.out.println(event.getHostname());
-    }
     @EventHandler
     private void onMove(EntityToggleGlideEvent event) {
         if (event.getEntity() instanceof Player player) {
