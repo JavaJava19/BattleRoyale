@@ -21,11 +21,13 @@ import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityToggleGlideEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
@@ -101,29 +103,39 @@ public class EventListener implements Listener {
     }
 
     @EventHandler
-    private void onMove(PlayerMoveEvent event) {
-        final Player player = event.getPlayer();
-        if (event.getFrom().getBlock().getRelative(BlockFace.DOWN).getType() == Material.AIR && event.getTo().getBlock().getRelative(BlockFace.DOWN).getType() != Material.AIR) {
+    private void onMove(EntityToggleGlideEvent event) {
+        if (event.getEntity() instanceof Player player) {
+            if (event.isGliding()) return;
             final ItemStack chestPlate = player.getInventory().getChestplate();
             if (chestPlate == null) return;
             if (chestPlate.getType() == Material.ELYTRA) {
                 player.getInventory().setChestplate(null);
                 player.getInventory().addItem(ItemBuilder.of(Material.BREAD).amount(20).build());
                 player.getPassengers().forEach(player::removePassenger);
+
             }
         }
     }
 
     @EventHandler
     private void onDamage(EntityDamageEvent event) {
-        if (event.getEntity() instanceof Player) {
+        if (event.getEntity() instanceof Player player) {
             if (game.getPhase() instanceof WaitingPhase) {
                 event.setCancelled(true);
                 return;
             }
 
             switch (event.getCause()) {
-                case FALL, FLY_INTO_WALL -> event.setCancelled(true);
+                case FALL, FLY_INTO_WALL -> {
+                    final ItemStack chestPlate = player.getInventory().getChestplate();
+                    if (chestPlate == null) return;
+                    if (chestPlate.getType() == Material.ELYTRA) {
+                        player.getInventory().setChestplate(null);
+                        player.getInventory().addItem(ItemBuilder.of(Material.BREAD).amount(20).build());
+                        player.getPassengers().forEach(player::removePassenger);
+                        event.setCancelled(true);
+                    }
+                }
             }
         }
     }
