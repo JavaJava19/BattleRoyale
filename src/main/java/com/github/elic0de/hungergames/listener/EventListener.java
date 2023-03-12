@@ -76,7 +76,7 @@ public class EventListener implements Listener {
                 if (player.getCooldown(Material.COMMAND_BLOCK) != 0) {
                     if (player.getCooldown(Material.BARRIER) == 0) {
                         final int cooldown = player.getCooldown(Material.COMMAND_BLOCK) / 20;
-                        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, MineDown.parse(ChatColor.RED + "残り" + cooldown + "秒で降りること可能です"));
+                        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, MineDown.parse(ChatColor.RED + "残り" + cooldown + "秒で降りることが可能です"));
                         player.setCooldown(Material.BARRIER, 20);
                     }
                     event.setCancelled(true);
@@ -143,6 +143,11 @@ public class EventListener implements Listener {
     private void onInteract(PlayerInteractEvent event) {
         final Block block = event.getClickedBlock();
         if (block == null) return;
+        if (game.getPhase() instanceof WaitingPhase) {
+            if (block.getType() == Material.CHEST && event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+                event.setCancelled(true);
+            }
+        }
         if (block.getType() == Material.CHEST && event.getAction() == Action.RIGHT_CLICK_BLOCK && game.getDeathChest().containsDeathChest(block)) {
             event.setCancelled(true);
             game.getDeathChest().openDeathChest(event.getPlayer(), block);
@@ -184,7 +189,7 @@ public class EventListener implements Listener {
         if (event.getEntity() instanceof Player vitim) {
             Player damager = null;
             if (event.getDamager() instanceof Player) damager = (Player) event.getDamager();
-            if (event.getDamager() instanceof Arrow arrow) if (arrow.getShooter() instanceof Player) damager = (Player) event.getDamager();
+            if (event.getDamager() instanceof Arrow arrow) if (arrow.getShooter() instanceof Player player) damager = player;
             if (damager != null) damager.spigot().sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder(vitim.getName() + " " + getHeartLevel(vitim)).create());
         }
     }
