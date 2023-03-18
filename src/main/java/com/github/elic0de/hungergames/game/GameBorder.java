@@ -66,7 +66,7 @@ public class GameBorder {
     }
 
     private double getDistanceToBorder(Player player, WorldBorder border) {
-        final double borderSize = border.getSize();
+        final double borderSize = border.getSize() / 2;
         return Math.min(
                 borderSize - Math.abs(player.getLocation().getX() - border.getCenter().getX()),
                 borderSize - Math.abs(player.getLocation().getZ() - border.getCenter().getZ())
