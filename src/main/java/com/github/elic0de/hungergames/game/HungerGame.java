@@ -78,12 +78,12 @@ public class HungerGame extends AbstractGame {
 
 
     public void createTeams(int count) {
-        int teamSize = Math.max(Math.round(getPlayers().size()/count), 1);
+        int teamSize = Math.max(Math.round(getPlayers().size() / count), 1);
 
         // 既存のチームを削除
         scoreboard.getTeams().forEach(Team::unregister);
         // 人数に応じてチームを作る
-        for(int i = 0; i < teamSize; i++) {
+        for (int i = 0; i < teamSize; i++) {
             final String teamName = scoreboard.getTeam(String.valueOf(i)) != null ? UUID.randomUUID().toString().substring(0, 6) : String.valueOf(i);
             final Team team = scoreboard.registerNewTeam(teamName);
 
@@ -131,9 +131,9 @@ public class HungerGame extends AbstractGame {
     }
 
     public void startBorder() {
-            border.start();
-            title("&cエリア縮小開始", "");
-            sound(Sound.ENTITY_WITHER_SPAWN);
+        border.start();
+        title("&cエリア縮小開始", "");
+        sound(Sound.ENTITY_WITHER_SPAWN);
     }
 
     public void spawnEnderDragon(Player player) {
@@ -192,9 +192,9 @@ public class HungerGame extends AbstractGame {
     public void wonGame() {
         if (getPhase() instanceof InGamePhase) {
             aliveTeams.stream().findAny().ifPresent(team -> {
-                broadcast(new MineDown(String.format("%sのチームが勝利しました", team.getName())));
-                team.getEntries().forEach(s -> broadcast(new MineDown("&6" + team.getName())));
-                title(String.format("%sの勝利", team.getName()), "");
+                broadcast(new MineDown(String.format("%sのチームが勝利しました", team.getDisplayName())));
+                team.getEntries().forEach(s -> broadcast(new MineDown("&6" + team.getDisplayName())));
+                title(String.format("%sの勝利", team.getDisplayName()), "");
             });
             endGame();
         }
@@ -236,7 +236,8 @@ public class HungerGame extends AbstractGame {
 
     public void sendMessageSpectators(GameUser user, String message) {
         getPlayers(GameUser.class).forEach(onlineUser -> {
-            if (isSpectator(onlineUser)) onlineUser.sendMessage(new MineDown(String.format("&b[観戦者] %s&r: &7%s", user.getUsername(), message)));
+            if (isSpectator(onlineUser))
+                onlineUser.sendMessage(new MineDown(String.format("&b[観戦者] %s&r: &7%s", user.getUsername(), message)));
         });
     }
 
