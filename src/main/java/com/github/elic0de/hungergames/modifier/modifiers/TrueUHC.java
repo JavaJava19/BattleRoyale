@@ -13,9 +13,9 @@ public class TrueUHC extends GameModifier {
 
     @EventHandler
     private void on(EntityDamageEvent event) {
-        if (event.getEntity() instanceof Player player) {
+        /*if (event.getEntity() instanceof Player player) {
             event.setDamage(event.getDamage() * 3);
-        }
+        }*/
     }
 
 }
