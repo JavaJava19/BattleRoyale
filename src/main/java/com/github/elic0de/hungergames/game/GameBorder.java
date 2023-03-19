@@ -1,8 +1,7 @@
 package com.github.elic0de.hungergames.game;
 
 import com.github.elic0de.hungergames.HungerGames;
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
+import de.themoep.minedown.MineDown;
 import org.bukkit.Bukkit;
 import org.bukkit.WorldBorder;
 import org.bukkit.entity.Player;
@@ -49,7 +48,7 @@ public class GameBorder {
                 }
                 game.getBossBar().setBossBar("残りのプレイヤー数: &6" + game.getAlivePlayersSize());
                 game.getBossBar().setProgress((double) Math.max(timeInSeconds - borderTicks.get(), 0) / timeInSeconds);
-                game.getPlayers().forEach(player -> player.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(String.format("ボーダーとの距離: §a%d§rブロック", (int) getDistanceToBorder(player.getPlayer(), border)))));
+                game.getPlayers().forEach(player -> player.sendActionBar(new MineDown(String.format("ボーダーとの距離: &a%d &rブロック", (int) getDistanceToBorder(player.getPlayer(), border)))));
             }
         }.runTaskTimer(HungerGames.getInstance(), 0, PERIOD);
     }
@@ -67,9 +66,9 @@ public class GameBorder {
 
     private double getDistanceToBorder(Player player, WorldBorder border) {
         final double borderSize = border.getSize() / 2;
-        return Math.min(
+        return Math.abs(Math.min(
                 borderSize - Math.abs(player.getLocation().getX() - border.getCenter().getX()),
                 borderSize - Math.abs(player.getLocation().getZ() - border.getCenter().getZ())
-        );
+        ));
     }
 }
