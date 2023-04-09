@@ -1,4 +1,4 @@
-package com.github.elic0de.hungergames.user;
+package com.github.elic0de.battleroyale.user;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;

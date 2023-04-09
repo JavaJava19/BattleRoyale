@@ -1,6 +1,6 @@
-package com.github.elic0de.hungergames.game;
+package com.github.elic0de.battleroyale.game;
 
-import com.github.elic0de.hungergames.user.GameUser;
+import com.github.elic0de.battleroyale.user.GameUser;
 import de.themoep.minedown.MineDown;
 
 import java.util.*;
@@ -11,13 +11,13 @@ public class GameRecords {
     // 全記録
     private final Map<UUID, Long> records = new HashMap<>();
 
-    private final HungerGame game;
+    private final Game game;
 
     private Map<UUID, Integer> rank = new HashMap<>();
 
     private UUID killLeader;
 
-    public GameRecords(HungerGame game) {
+    public GameRecords(Game game) {
         this.game = game;
         sortAsync();
     }

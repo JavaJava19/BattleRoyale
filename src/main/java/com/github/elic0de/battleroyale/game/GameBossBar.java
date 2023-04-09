@@ -1,6 +1,6 @@
-package com.github.elic0de.hungergames.game;
+package com.github.elic0de.battleroyale.game;
 
-import com.github.elic0de.hungergames.user.GameUser;
+import com.github.elic0de.battleroyale.user.GameUser;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.boss.BarColor;

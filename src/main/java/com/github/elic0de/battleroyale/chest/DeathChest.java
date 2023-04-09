@@ -1,7 +1,7 @@
-package com.github.elic0de.hungergames.chest;
+package com.github.elic0de.battleroyale.chest;
 
-import com.github.elic0de.hungergames.menu.DeathChestMenu;
-import com.github.elic0de.hungergames.user.GameUser;
+import com.github.elic0de.battleroyale.menu.DeathChestMenu;
+import com.github.elic0de.battleroyale.user.GameUser;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;

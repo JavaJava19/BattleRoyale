@@ -1,4 +1,4 @@
-package com.github.elic0de.hungergames.user;
+package com.github.elic0de.battleroyale.user;
 
 import com.github.elic0de.eliccommon.user.OnlineUser;
 import net.md_5.bungee.api.ChatMessageType;

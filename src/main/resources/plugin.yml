@@ -1,5 +1,5 @@
 name: HungerGames
 version: '${project.version}'
-main: com.github.elic0de.hungergames.HungerGames
+main: com.github.elic0de.battleroyale.BattleRoyale
 api-version: 1.19
 depend: [Citizens]

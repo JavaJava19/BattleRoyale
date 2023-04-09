@@ -1,11 +1,16 @@
-package com.github.elic0de.hungergames.game.phase;
+package com.github.elic0de.battleroyale.game.phase;
 
 import com.github.elic0de.eliccommon.game.phase.Phase;
 import com.github.elic0de.eliccommon.user.OnlineUser;
+import com.github.elic0de.battleroyale.game.Game;
+import com.github.elic0de.battleroyale.user.GameUser;
 
-public class WaitingPhase extends Phase {
-    public WaitingPhase() {
+public class InGamePhase extends Phase {
+
+    private final Game game;
+    public InGamePhase(Game game) {
         super(-0L, -0L);
+        this.game = game;
     }
 
     @Override
@@ -25,11 +30,11 @@ public class WaitingPhase extends Phase {
 
     @Override
     public void join(OnlineUser player) {
-
+        game.rejoin((GameUser) player);
     }
 
     @Override
     public void leave(OnlineUser player) {
-
+        game.addRejoinPlayer((GameUser) player);
     }
 }

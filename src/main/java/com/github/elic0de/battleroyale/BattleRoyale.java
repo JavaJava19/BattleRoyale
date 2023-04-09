@@ -1,18 +1,18 @@
-package com.github.elic0de.hungergames;
+package com.github.elic0de.battleroyale;
 
 import co.aikar.commands.PaperCommandManager;
 import com.github.elic0de.eliccommon.plugin.AbstractPlugin;
-import com.github.elic0de.hungergames.command.HungerCommand;
-import com.github.elic0de.hungergames.game.HungerGame;
-import com.github.elic0de.hungergames.listener.EventListener;
-import com.github.elic0de.hungergames.user.GameUserManager;
+import com.github.elic0de.battleroyale.command.BattleCommand;
+import com.github.elic0de.battleroyale.game.Game;
+import com.github.elic0de.battleroyale.listener.EventListener;
+import com.github.elic0de.battleroyale.user.GameUserManager;
 import org.bukkit.Bukkit;
 
-public final class HungerGames extends AbstractPlugin {
+public final class BattleRoyale extends AbstractPlugin {
 
-    private static HungerGames instance;
+    private static BattleRoyale instance;
 
-    private HungerGame game;
+    private Game game;
 
     @Override
     public void onLoad() {
@@ -23,7 +23,7 @@ public final class HungerGames extends AbstractPlugin {
     @Override
     public void onEnable() {
         // Plugin startup logic
-        game = new HungerGame();
+        game = new Game();
 
         registerCommands();
 
@@ -43,14 +43,14 @@ public final class HungerGames extends AbstractPlugin {
         PaperCommandManager commandManager = new PaperCommandManager(this);
 
         commandManager.enableUnstableAPI("brigadier");
-        commandManager.registerCommand(new HungerCommand());
+        commandManager.registerCommand(new BattleCommand());
     }
 
-    public HungerGame getGame() {
+    public Game getGame() {
         return game;
     }
 
-    public static HungerGames getInstance() {
+    public static BattleRoyale getInstance() {
         return instance;
     }
 }

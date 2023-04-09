@@ -1,6 +1,6 @@
-package com.github.elic0de.hungergames.game;
+package com.github.elic0de.battleroyale.game;
 
-import com.github.elic0de.hungergames.HungerGames;
+import com.github.elic0de.battleroyale.BattleRoyale;
 import de.themoep.minedown.MineDown;
 import org.bukkit.Bukkit;
 import org.bukkit.WorldBorder;
@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class GameBorder {
 
-    private final HungerGame game;
+    private final Game game;
 
     private final WorldBorder border = Bukkit.getWorlds().get(0).getWorldBorder();
 
@@ -22,7 +22,7 @@ public class GameBorder {
 
     private final AtomicLong borderTicks = new AtomicLong();
 
-    public GameBorder(HungerGame game) {
+    public GameBorder(Game game) {
         this.game = game;
         border.setDamageBuffer(2);
         border.setDamageAmount(0.5D);
@@ -50,7 +50,7 @@ public class GameBorder {
                 game.getBossBar().setProgress((double) Math.max(timeInSeconds - borderTicks.get(), 0) / timeInSeconds);
                 game.getPlayers().forEach(player -> player.sendActionBar(new MineDown(String.format("ボーダーとの距離: &a%d &rブロック", (int) getDistanceToBorder(player.getPlayer(), border)))));
             }
-        }.runTaskTimer(HungerGames.getInstance(), 0, PERIOD);
+        }.runTaskTimer(BattleRoyale.getInstance(), 0, PERIOD);
     }
 
     public void stop() {

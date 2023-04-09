@@ -1,24 +1,22 @@
-package com.github.elic0de.hungergames.listener;
+package com.github.elic0de.battleroyale.listener;
 
 import com.github.elic0de.eliccommon.util.ItemBuilder;
-import com.github.elic0de.hungergames.HungerGames;
-import com.github.elic0de.hungergames.game.HungerGame;
-import com.github.elic0de.hungergames.game.phase.InGamePhase;
-import com.github.elic0de.hungergames.game.phase.WaitingPhase;
-import com.github.elic0de.hungergames.user.GameUser;
-import com.github.elic0de.hungergames.user.GameUserManager;
+import com.github.elic0de.battleroyale.BattleRoyale;
+import com.github.elic0de.battleroyale.game.Game;
+import com.github.elic0de.battleroyale.game.phase.InGamePhase;
+import com.github.elic0de.battleroyale.game.phase.WaitingPhase;
+import com.github.elic0de.battleroyale.user.GameUser;
+import com.github.elic0de.battleroyale.user.GameUserManager;
 import de.themoep.minedown.MineDown;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -33,7 +31,7 @@ import org.spigotmc.event.entity.EntityDismountEvent;
 
 public class EventListener implements Listener {
 
-    private final HungerGame game = HungerGames.getInstance().getGame();
+    private final Game game = BattleRoyale.getInstance().getGame();
 
     @EventHandler
     private void onJoin(PlayerJoinEvent event) {

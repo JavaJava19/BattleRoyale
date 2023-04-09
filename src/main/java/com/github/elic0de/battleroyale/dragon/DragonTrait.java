@@ -1,9 +1,7 @@
-package com.github.elic0de.hungergames.dragon;
+package com.github.elic0de.battleroyale.dragon;
 
-import com.github.elic0de.hungergames.HungerGames;
+import com.github.elic0de.battleroyale.BattleRoyale;
 import net.citizensnpcs.api.trait.Trait;
-import net.citizensnpcs.npc.CitizensNPC;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.WorldBorder;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -44,7 +42,7 @@ public class DragonTrait extends Trait {
                 if (npc.getNavigator().isNavigating()) return;
                 if (npc.isSpawned()) npc.getNavigator().setTarget(locations.get(index.incrementAndGet()));
             }
-        }.runTaskTimer(HungerGames.getInstance(), 0, 20);
+        }.runTaskTimer(BattleRoyale.getInstance(), 0, 20);
     }
 
     public void reset() {

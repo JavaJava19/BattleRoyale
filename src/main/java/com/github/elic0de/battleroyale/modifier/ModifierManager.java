@@ -1,9 +1,8 @@
-package com.github.elic0de.hungergames.modifier;
+package com.github.elic0de.battleroyale.modifier;
 
-import com.github.elic0de.hungergames.animation.Test;
-import com.github.elic0de.hungergames.game.HungerGame;
-import com.github.elic0de.hungergames.modifier.modifiers.GameModifier;
-import com.github.elic0de.hungergames.modifier.modifiers.TrueUHC;
+import com.github.elic0de.battleroyale.animation.Test;
+import com.github.elic0de.battleroyale.game.Game;
+import com.github.elic0de.battleroyale.modifier.modifiers.*;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -11,23 +10,29 @@ import java.util.*;
 public class ModifierManager {
 
 
-    private final HungerGame game;
+    private final Game game;
     private final Random random = new Random();
     private GameModifier currentModifier;
 
     private final Map<String, GameModifier> modifiers = new HashMap<>();
 
-    public ModifierManager(HungerGame game) {
+    public ModifierManager(Game game) {
         this.game = game;
         registerMissions();
     }
 
     private void registerMissions() {
-        modifiers.put(Modifiers.GET_A_IRON_INGOT.getKey(), new TrueUHC());
+        modifiers.put(Modifiers.TRUE_UHC.getKey(), new TrueUHC());
+        modifiers.put(Modifiers.MAGIC_POWER.getKey(), new MagicPower());
+        modifiers.put(Modifiers.FLOWER_POWER.getKey(), new FlowerPower());
+        modifiers.put(Modifiers.PERALS.getKey(), new Pearls());
+        modifiers.put(Modifiers.NIGHT_TIME.getKey(), new NightTime());
+        modifiers.put(Modifiers.HEALTH_ON_KILL.getKey(), new HealthOnKill());
     }
 
     public void modify() {
-        Test.animation(getModifiers());
+        new Test().animation(getModifiers());
+        getCurrentMission().modify();
     }
 
     public void reset() {
@@ -38,7 +43,7 @@ public class ModifierManager {
         getRandomModifier().ifPresent(mission -> currentModifier = mission);
     }
 
-    private GameModifier getCurrentMission() {
+    public GameModifier getCurrentMission() {
         if (currentModifier == null) {
             randomModifier();
         }
