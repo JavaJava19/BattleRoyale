@@ -1,4 +1,4 @@
-package com.github.elic0de.hungergames.animation;
+package com.github.elic0de.battleroyale.animation;
 
 import lombok.NonNull;
 
