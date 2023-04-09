@@ -1,26 +1,22 @@
-package com.github.elic0de.hungergames.command;
+package com.github.elic0de.battleroyale.command;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.CommandAlias;
 import co.aikar.commands.annotation.Default;
 import co.aikar.commands.annotation.Subcommand;
-import com.github.elic0de.hungergames.HungerGames;
-import com.github.elic0de.hungergames.game.HungerGame;
+import com.github.elic0de.battleroyale.BattleRoyale;
+import com.github.elic0de.battleroyale.game.GameType;
+import com.github.elic0de.battleroyale.game.Game;
 import org.bukkit.entity.Player;
 
-@CommandAlias("hungergames|hg")
-public class HungerCommand extends BaseCommand {
+@CommandAlias("battleroyale|br")
+public class BattleCommand extends BaseCommand {
 
-    private final HungerGame game = HungerGames.getInstance().getGame();
+    private final Game game = BattleRoyale.getInstance().getGame();
 
     @Subcommand("start")
-    private void start(Player player) {
-        game.startGame(player, false);
-    }
-
-    @Subcommand("start modifier")
-    private void startModifier(Player player) {
-        game.startGame(player, true);
+    private void start(Player player, GameType type, @Default("false") boolean modifier) {
+        game.startGame(player, type, modifier);
     }
 
     @Subcommand("end")

@@ -1,17 +1,18 @@
-package com.github.elic0de.hungergames.game;
+package com.github.elic0de.battleroyale.game;
 
 import com.github.elic0de.eliccommon.game.AbstractGame;
 import com.github.elic0de.eliccommon.game.phase.Phase;
 import com.github.elic0de.eliccommon.user.OnlineUser;
 import com.github.elic0de.eliccommon.util.ItemBuilder;
-import com.github.elic0de.hungergames.HungerGames;
-import com.github.elic0de.hungergames.chest.DeathChest;
-import com.github.elic0de.hungergames.dragon.DragonTrait;
-import com.github.elic0de.hungergames.game.phase.InGamePhase;
-import com.github.elic0de.hungergames.game.phase.WaitingPhase;
-import com.github.elic0de.hungergames.modifier.ModifierManager;
-import com.github.elic0de.hungergames.user.GameUser;
-import com.github.elic0de.hungergames.user.GameUserManager;
+import com.github.elic0de.battleroyale.BattleRoyale;
+import com.github.elic0de.battleroyale.chest.DeathChest;
+import com.github.elic0de.battleroyale.dragon.DragonTrait;
+import com.github.elic0de.battleroyale.event.GamePlayerKillEvent;
+import com.github.elic0de.battleroyale.game.phase.InGamePhase;
+import com.github.elic0de.battleroyale.game.phase.WaitingPhase;
+import com.github.elic0de.battleroyale.modifier.ModifierManager;
+import com.github.elic0de.battleroyale.user.GameUser;
+import com.github.elic0de.battleroyale.user.GameUserManager;
 import de.themoep.minedown.MineDown;
 import lombok.Getter;
 import net.citizensnpcs.api.CitizensAPI;
@@ -30,7 +31,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-public class HungerGame extends AbstractGame {
+public class Game extends AbstractGame {
 
     private final Scoreboard scoreboard;
 
@@ -58,7 +59,7 @@ public class HungerGame extends AbstractGame {
     private GameRecords records;
     private BukkitTask borderTask;
 
-    public HungerGame() {
+    public Game() {
         scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
         border = new GameBorder(this);
         deathChest = new DeathChest();
@@ -105,28 +106,35 @@ public class HungerGame extends AbstractGame {
         player.teleport(start);
     }
 
-    public void startGame(Player player, boolean modifier) {
+    public void startGame(Player player, GameType type, boolean modifier) {
         if (getPhase() instanceof WaitingPhase) {
             final WorldBorder border = player.getWorld().getWorldBorder();
             final Location start = border.getCenter().clone().add((border.getSize() / 2) - 2, 130, (border.getSize() / 2) - 2);
-            // modifierが有効の場合、ランダムにmodifierを加える
-            // if (modifier) modifierManager.modify();
 
-            getPlayers(GameUser.class).forEach(user -> {
-                // プレイヤーが所属しているチームを生存しているチームとして登録
-                // チームに所属していなかったら観戦者とする
-                getUserTeam(user).ifPresentOrElse(aliveTeams::add, () -> deadPlayers.add(user.getUsername()));
-                user.clearEffectAndHeal();
+            Bukkit.getScheduler().runTask(BattleRoyale.getInstance(), () -> {
+                if (type == GameType.SOLO) {
+                    createTeams(1);
+                    randomTeam();
+                }
+                // modifierが有効の場合、ランダムにmodifierを加える
+                if (modifier) modifierManager.modify();
 
-                user.getPlayer().getInventory().clear();
-                user.getPlayer().teleport(start);
-                user.getPlayer().setGameMode(GameMode.SPECTATOR);
+                getPlayers(GameUser.class).forEach(user -> {
+                    // プレイヤーが所属しているチームを生存しているチームとして登録
+                    // チームに所属していなかったら観戦者とする
+                    getUserTeam(user).ifPresentOrElse(aliveTeams::add, () -> deadPlayers.add(user.getUsername()));
+                    user.clearEffectAndHeal();
 
-                // 10秒のクールダウン
-                user.getPlayer().setCooldown(Material.COMMAND_BLOCK, 10 * 20);
+                    user.getPlayer().getInventory().clear();
+                    user.getPlayer().teleport(start);
+                    user.getPlayer().setGameMode(GameMode.SPECTATOR);
+
+                    // 10秒のクールダウン
+                    user.getPlayer().setCooldown(Material.COMMAND_BLOCK, 10 * 20);
+                });
+                nextPhase();
+                spawnEnderDragon(player);
             });
-            nextPhase();
-            spawnEnderDragon(player);
         }
     }
 
@@ -142,10 +150,10 @@ public class HungerGame extends AbstractGame {
         final Location start = border.getCenter().clone().add(border.getSize() / 2, 130, border.getSize() / 2);
         final Location end = border.getCenter().clone().subtract(border.getSize() / 2, -130, border.getSize() / 2);
 
-        borderTask = Bukkit.getScheduler().runTaskLater(HungerGames.getInstance(), this::startBorder, (long) ((start.distance(end) / 10) * 20));
+        borderTask = Bukkit.getScheduler().runTaskLater(BattleRoyale.getInstance(), this::startBorder, (long) ((start.distance(end) / 10) * 20));
 
         dragonTrait = new DragonTrait(border);
-        Bukkit.getScheduler().runTaskTimer(HungerGames.getInstance(), task -> {
+        Bukkit.getScheduler().runTaskTimer(BattleRoyale.getInstance(), task -> {
             CitizensNPC dragon = new CitizensNPC(UUID.randomUUID(), 1, "", EntityControllers.createForType(EntityType.ENDER_DRAGON), CitizensAPI.getNPCRegistry());
             dragon.spawn(player.getLocation());
             dragon.addTrait(dragonTrait);
@@ -158,7 +166,7 @@ public class HungerGame extends AbstractGame {
     }
 
     public void dismountWithTeam(GameUser user) {
-        Bukkit.getScheduler().runTask(HungerGames.getInstance(), () -> getTeamUsers(user).stream().filter(user1 -> user1 != user).forEach(user1 -> user.getPlayer().addPassenger(user1.getPlayer())));
+        Bukkit.getScheduler().runTask(BattleRoyale.getInstance(), () -> getTeamUsers(user).stream().filter(user1 -> user1 != user).forEach(user1 -> user.getPlayer().addPassenger(user1.getPlayer())));
     }
 
     public void onDeath(GameUser user) {
@@ -175,7 +183,9 @@ public class HungerGame extends AbstractGame {
             });
 
             if (user.getPlayer().getKiller() != null) {
-                records.addKill(GameUserManager.getGameUser(user.getPlayer().getKiller()));
+                final GameUser killer = GameUserManager.getGameUser(user.getPlayer().getKiller());
+                Bukkit.getPluginManager().callEvent(new GamePlayerKillEvent(killer, user));
+                records.addKill(killer);
             }
 
             deathChest.generateChest(user);
