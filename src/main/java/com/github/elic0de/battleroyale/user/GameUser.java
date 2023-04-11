@@ -27,6 +27,15 @@ public class GameUser extends OnlineUser {
         player.setFoodLevel(20);
     }
 
+    public void increaseKills() {
+        // ここにキル数を増加させる処理を
+        giveCoins(2);
+    }
+
+    public void giveCoins(int coins) {
+
+    }
+
     @Override
     public @NotNull Player getPlayer() {
         return player;
