@@ -1,18 +1,29 @@
 package com.github.elic0de.battleroyale;
 
 import co.aikar.commands.PaperCommandManager;
+import com.github.elic0de.battleroyale.config.Settings;
 import com.github.elic0de.eliccommon.plugin.AbstractPlugin;
 import com.github.elic0de.battleroyale.command.BattleCommand;
 import com.github.elic0de.battleroyale.game.Game;
 import com.github.elic0de.battleroyale.listener.EventListener;
 import com.github.elic0de.battleroyale.user.GameUserManager;
+import lombok.Getter;
+import net.william278.annotaml.Annotaml;
 import org.bukkit.Bukkit;
 
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.util.logging.Level;
+
+@Getter
 public final class BattleRoyale extends AbstractPlugin {
 
     private static BattleRoyale instance;
 
     private Game game;
+
+    private Settings settings;
 
     @Override
     public void onLoad() {
@@ -22,13 +33,23 @@ public final class BattleRoyale extends AbstractPlugin {
 
     @Override
     public void onEnable() {
-        // Plugin startup logic
+        loadConfig();
+
         game = new Game();
 
         registerCommands();
 
         Bukkit.getPluginManager().registerEvents(new EventListener(), this);
         GameUserManager.getOnlineUsers().forEach(player -> game.join(player));
+    }
+
+    private void loadConfig() throws RuntimeException {
+        try {
+            this.settings = Annotaml.create(new File(getDataFolder(), "settings.yml"), Settings.class).get();
+        } catch (IOException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
+            getLogger().log(Level.SEVERE, "Failed to load configuration files", e);
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -44,10 +65,6 @@ public final class BattleRoyale extends AbstractPlugin {
 
         commandManager.enableUnstableAPI("brigadier");
         commandManager.registerCommand(new BattleCommand());
-    }
-
-    public Game getGame() {
-        return game;
     }
 
     public static BattleRoyale getInstance() {
