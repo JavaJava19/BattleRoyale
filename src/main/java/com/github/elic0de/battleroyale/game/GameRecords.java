@@ -79,6 +79,10 @@ public class GameRecords {
         });
     }
 
+    public UUID getKillLeader() {
+        return killLeader;
+    }
+
     public Map<UUID, Integer> getRank() {
         return rank;
     }

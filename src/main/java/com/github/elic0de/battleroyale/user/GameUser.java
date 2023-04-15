@@ -1,5 +1,6 @@
 package com.github.elic0de.battleroyale.user;
 
+import com.github.elic0de.battleroyale.BattleRoyale;
 import com.github.elic0de.eliccommon.user.OnlineUser;
 import com.github.elic0de.eliccommon.util.ItemBuilder;
 import net.md_5.bungee.api.ChatMessageType;
@@ -9,6 +10,8 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.PlayerInventory;
 import org.jetbrains.annotations.NotNull;
+
+import java.math.BigDecimal;
 
 public class GameUser extends OnlineUser {
 
@@ -43,6 +46,10 @@ public class GameUser extends OnlineUser {
 
     public void giveCoins(int coins) {
 
+    }
+
+    public void giveRewards(BigDecimal reward) {
+        BattleRoyale.getInstance().getEconomyHook().ifPresent(hook -> hook.giveMoney(this, reward));
     }
 
     @Override

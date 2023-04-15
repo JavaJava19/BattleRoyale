@@ -7,11 +7,20 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class GameUserManager {
 
     private static final Map<String, GameUser> onlineUsers = new HashMap<>();
+
+    public static Optional<GameUser> getGameUser(final @NotNull String playerName) {
+        final Player player = Bukkit.getPlayer(playerName);
+        if (player != null) {
+            return Optional.of(getGameUser(player));
+        }
+        return Optional.empty();
+    }
 
     public static GameUser getGameUser(final @NotNull Player player) {
         final String uuid = player.getUniqueId().toString();
