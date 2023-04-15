@@ -3,6 +3,7 @@ package com.github.elic0de.battleroyale.game;
 import com.github.elic0de.battleroyale.BattleRoyale;
 import de.themoep.minedown.MineDown;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.WorldBorder;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -35,13 +36,15 @@ public class GameBorder {
         border.setSize(MIN_BORDER_SIZE, 900);
 
         final long PERIOD = 20;
-        final long timeInSeconds = 900;
+        final long timeInSeconds = 1200;
         borderTicks.set(0);
         if (borderTask != null) borderTask.cancel();
         borderTask = new BukkitRunnable() {
             @Override
             public void run() {
                 if (borderTicks.incrementAndGet() >= timeInSeconds) {
+                    // １５マスの円柱フィールドを作ってそこに全員TP
+                    generateCycleFieldAndTeleport();
                     game.getBossBar().hide();
                     cancel();
                     return;
@@ -70,5 +73,9 @@ public class GameBorder {
                 borderSize - Math.abs(player.getLocation().getX() - border.getCenter().getX()),
                 borderSize - Math.abs(player.getLocation().getZ() - border.getCenter().getZ())
         ));
+    }
+
+    private void generateCycleFieldAndTeleport() {
+        game.getPlayers().forEach(player -> player.getPlayer().teleport(new Location(Bukkit.getWorld(""),1,1,1)));
     }
 }

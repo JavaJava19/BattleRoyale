@@ -77,6 +77,14 @@ public class Game extends AbstractGame {
         bossBar.removePlayer(user);
     }
 
+    public boolean checkPlayerSize() {
+        final boolean canStart = getPlayers().size() <= 20;
+        if (canStart) {
+            startCountDown();
+        }
+        return canStart;
+    }
+
 
     public void createTeams(int count) {
         int teamSize = Math.max(Math.round(getPlayers().size() / count), 1);
@@ -106,6 +114,35 @@ public class Game extends AbstractGame {
         player.teleport(start);
     }
 
+    public void startCountDown() {
+        
+    }
+
+    public void startGame() {
+        if (getPhase() instanceof WaitingPhase) {
+            final WorldBorder border = Bukkit.getWorld("").getWorldBorder();
+            final Location start = border.getCenter().clone().add((border.getSize() / 2) - 2, 130, (border.getSize() / 2) - 2);
+
+            Bukkit.getScheduler().runTask(BattleRoyale.getInstance(), () -> {
+                getPlayers(GameUser.class).forEach(user -> {
+                    // プレイヤーが所属しているチームを生存しているチームとして登録
+                    // チームに所属していなかったら観戦者とする
+                    getUserTeam(user).ifPresentOrElse(aliveTeams::add, () -> deadPlayers.add(user.getUsername()));
+                    user.clearEffectAndHeal();
+
+                    user.getPlayer().getInventory().clear();
+                    user.getPlayer().teleport(start);
+                    user.getPlayer().setGameMode(GameMode.SPECTATOR);
+
+                    // 10秒のクールダウン
+                    user.getPlayer().setCooldown(Material.COMMAND_BLOCK, 10 * 20);
+                });
+                nextPhase();
+                spawnEnderDragon(border.getWorld());
+            });
+        }
+    }
+
     public void startGame(Player player, GameType type, boolean modifier) {
         if (getPhase() instanceof WaitingPhase) {
             final WorldBorder border = player.getWorld().getWorldBorder();
@@ -133,7 +170,7 @@ public class Game extends AbstractGame {
                     user.getPlayer().setCooldown(Material.COMMAND_BLOCK, 10 * 20);
                 });
                 nextPhase();
-                spawnEnderDragon(player);
+                spawnEnderDragon(player.getWorld());
             });
         }
     }
@@ -144,8 +181,7 @@ public class Game extends AbstractGame {
         sound(Sound.ENTITY_WITHER_SPAWN);
     }
 
-    public void spawnEnderDragon(Player player) {
-        final World world = player.getWorld();
+    public void spawnEnderDragon(World world) {
         final WorldBorder border = world.getWorldBorder();
         final Location start = border.getCenter().clone().add(border.getSize() / 2, 130, border.getSize() / 2);
         final Location end = border.getCenter().clone().subtract(border.getSize() / 2, -130, border.getSize() / 2);
@@ -155,7 +191,7 @@ public class Game extends AbstractGame {
         dragonTrait = new DragonTrait(border);
         Bukkit.getScheduler().runTaskTimer(BattleRoyale.getInstance(), task -> {
             CitizensNPC dragon = new CitizensNPC(UUID.randomUUID(), 1, "", EntityControllers.createForType(EntityType.ENDER_DRAGON), CitizensAPI.getNPCRegistry());
-            dragon.spawn(player.getLocation());
+            dragon.spawn(start);
             dragon.addTrait(dragonTrait);
             if (dragon.isSpawned()) {
                 getPlayers().stream().filter(onlineUser -> !deadPlayers.contains(onlineUser.getUsername())).forEach(onlineUser -> dragon.getEntity().addPassenger(onlineUser.getPlayer()));
@@ -205,6 +241,9 @@ public class Game extends AbstractGame {
                 broadcast(new MineDown(String.format("%sのチームが勝利しました", team.getDisplayName())));
                 team.getEntries().forEach(s -> broadcast(new MineDown("&6" + team.getDisplayName())));
                 title(String.format("%sの勝利", team.getDisplayName()), "");
+
+
+                // todo: ここにfireworkの処理を実装させる
             });
             endGame();
         }
@@ -213,7 +252,8 @@ public class Game extends AbstractGame {
     public void endGame() {
         showResult();
         sound(Sound.UI_TOAST_CHALLENGE_COMPLETE);
-        reset();
+        // 20秒後にリセット
+        Bukkit.getScheduler().runTaskLater(BattleRoyale.getInstance(), () -> reset(), 20 * 20);
     }
 
     // todo
