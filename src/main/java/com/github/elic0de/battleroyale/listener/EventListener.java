@@ -112,7 +112,7 @@ public class EventListener implements Listener {
             if (chestPlate == null) return;
             if (chestPlate.getType() == Material.ELYTRA) {
                 player.getInventory().setChestplate(null);
-                player.getInventory().addItem(ItemBuilder.of(Material.BREAD).amount(20).build());
+                GameUserManager.getGameUser(player).addItems();
                 player.getPassengers().forEach(player::removePassenger);
 
             }
@@ -133,9 +133,9 @@ public class EventListener implements Listener {
                     if (chestPlate == null) return;
                     if (chestPlate.getType() == Material.ELYTRA) {
                         player.getInventory().setChestplate(null);
-                        player.getInventory().addItem(ItemBuilder.of(Material.BREAD).amount(20).build());
                         player.getPassengers().forEach(player::removePassenger);
                         event.setCancelled(true);
+                        GameUserManager.getGameUser(player).addItems();
                     }
                 }
             }
@@ -265,8 +265,6 @@ public class EventListener implements Listener {
                 if (player.getGameMode() == GameMode.SPECTATOR) continue;
                 if (game.getTeamUsers(user).contains(GameUserManager.getGameUser(player))) continue;
                 double distanceto = p.getLocation().distance(player.getLocation());
-                if (distanceto > distance)
-                    continue;
                 return player;
             }
         }
