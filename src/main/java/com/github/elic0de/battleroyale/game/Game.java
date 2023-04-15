@@ -13,6 +13,11 @@ import com.github.elic0de.battleroyale.game.phase.WaitingPhase;
 import com.github.elic0de.battleroyale.modifier.ModifierManager;
 import com.github.elic0de.battleroyale.user.GameUser;
 import com.github.elic0de.battleroyale.user.GameUserManager;
+import com.github.elic0de.eliccommon.game.AbstractGame;
+import com.github.elic0de.eliccommon.game.phase.Phase;
+import com.github.elic0de.eliccommon.user.OnlineUser;
+import com.github.elic0de.eliccommon.util.ElicTask;
+import com.github.elic0de.eliccommon.util.ItemBuilder;
 import de.themoep.minedown.MineDown;
 import lombok.Getter;
 import net.citizensnpcs.api.CitizensAPI;
@@ -46,7 +51,6 @@ public class Game extends AbstractGame {
 
     private final GameBorder border;
 
-
     private final Set<Team> aliveTeams = new HashSet<>();
 
     @Getter
@@ -78,13 +82,8 @@ public class Game extends AbstractGame {
     }
 
     public boolean checkPlayerSize() {
-        final boolean canStart = getPlayers().size() <= 20;
-        if (canStart) {
-            startCountDown();
-        }
-        return canStart;
+        return getPlayers().size() < settings.minPlayers;
     }
-
 
     public void createTeams(int count) {
         int teamSize = Math.max(Math.round(getPlayers().size() / count), 1);
@@ -115,7 +114,14 @@ public class Game extends AbstractGame {
     }
 
     public void startCountDown() {
-        
+        ElicTask.runTaskTimer(BattleRoyale.getInstance(), gameTask -> {
+            final long time = gameTask.getCurrentTicks();
+            if (time > 0 && time <= 5) {
+                broadcast(new MineDown(time + "..."));
+                sound(Sound.BLOCK_NOTE_BLOCK_HARP);
+            }
+            gameTask.setEndExecute(execute -> startGame());
+        }, 20);
     }
 
     public void startGame() {
