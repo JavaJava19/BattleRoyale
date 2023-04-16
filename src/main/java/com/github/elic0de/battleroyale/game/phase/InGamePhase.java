@@ -31,7 +31,6 @@ public class InGamePhase extends Phase {
     @Override
     public void join(OnlineUser player) {
         game.rejoin((GameUser) player);
-        game.checkPlayerSize();
     }
 
     @Override

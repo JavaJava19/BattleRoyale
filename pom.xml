@@ -141,5 +141,21 @@
             <artifactId>HikariCP</artifactId>
             <version>5.0.1</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.Elic0de</groupId>
+            <artifactId>ElicCommon</artifactId>
+            <version>16caeaef35</version>
+        </dependency>
+        <dependency>
+            <groupId>fr.mrmicky</groupId>
+            <artifactId>fastboard</artifactId>
+            <version>1.2.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.MilkBowl</groupId>
+            <artifactId>VaultAPI</artifactId>
+            <version>1.7</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>

@@ -1,13 +1,11 @@
 package com.github.elic0de.battleroyale.game;
 
-import com.github.elic0de.eliccommon.game.AbstractGame;
-import com.github.elic0de.eliccommon.game.phase.Phase;
-import com.github.elic0de.eliccommon.user.OnlineUser;
-import com.github.elic0de.eliccommon.util.ItemBuilder;
 import com.github.elic0de.battleroyale.BattleRoyale;
 import com.github.elic0de.battleroyale.chest.DeathChest;
+import com.github.elic0de.battleroyale.config.Settings;
 import com.github.elic0de.battleroyale.dragon.DragonTrait;
 import com.github.elic0de.battleroyale.event.GamePlayerKillEvent;
+import com.github.elic0de.battleroyale.game.phase.EndPhase;
 import com.github.elic0de.battleroyale.game.phase.InGamePhase;
 import com.github.elic0de.battleroyale.game.phase.WaitingPhase;
 import com.github.elic0de.battleroyale.modifier.ModifierManager;
@@ -32,11 +30,15 @@ import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 import org.jetbrains.annotations.NotNull;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class Game extends AbstractGame {
+
+    @Getter
+    private final Settings settings;
 
     private final Scoreboard scoreboard;
 
@@ -64,6 +66,8 @@ public class Game extends AbstractGame {
     private BukkitTask borderTask;
 
     public Game() {
+        super(BattleRoyale.getInstance());
+        settings = BattleRoyale.getInstance().getSettings();
         scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
         border = new GameBorder(this);
         deathChest = new DeathChest();
@@ -228,6 +232,14 @@ public class Game extends AbstractGame {
                 final GameUser killer = GameUserManager.getGameUser(user.getPlayer().getKiller());
                 Bukkit.getPluginManager().callEvent(new GamePlayerKillEvent(killer, user));
                 records.addKill(killer);
+
+                //　キル: 30JP
+                killer.giveRewards(BigDecimal.valueOf(30));
+
+                // キルリーダを討伐したら
+                if (records.getKillLeader() == user.getUniqueId()) {
+                    killer.giveRewards(BigDecimal.valueOf(30));
+                }
             }
 
             deathChest.generateChest(user);
@@ -245,21 +257,27 @@ public class Game extends AbstractGame {
         if (getPhase() instanceof InGamePhase) {
             aliveTeams.stream().findAny().ifPresent(team -> {
                 broadcast(new MineDown(String.format("%sのチームが勝利しました", team.getDisplayName())));
-                team.getEntries().forEach(s -> broadcast(new MineDown("&6" + team.getDisplayName())));
+                team.getEntries().forEach(s -> {
+                    broadcast(new MineDown("&6" + s));
+                    GameUserManager.getGameUser(s).ifPresent(gameUser -> gameUser.giveRewards(BigDecimal.valueOf(100)));
+                });
                 title(String.format("%sの勝利", team.getDisplayName()), "");
 
-
-                // todo: ここにfireworkの処理を実装させる
+                getPlayers().forEach(player -> player.getPlayer().getInventory().addItem(ItemBuilder.of(Material.FIREWORK_ROCKET).amount(10).build()));
             });
             endGame();
         }
     }
 
     public void endGame() {
+        setPhase(EndPhase.class);
         showResult();
         sound(Sound.UI_TOAST_CHALLENGE_COMPLETE);
         // 20秒後にリセット
-        Bukkit.getScheduler().runTaskLater(BattleRoyale.getInstance(), () -> reset(), 20 * 20);
+        Bukkit.getScheduler().runTaskLater(BattleRoyale.getInstance(), this::reset, 20 * 20);
+
+        // 参加賞: 100JP
+        getPlayers(GameUser.class).forEach(gameUser -> gameUser.giveRewards(BigDecimal.valueOf(100)));
     }
 
     // todo
@@ -317,9 +335,9 @@ public class Game extends AbstractGame {
                 if (chestPlate == null) return;
                 if (chestPlate.getType() == Material.ELYTRA || player.getGameMode() == GameMode.SPECTATOR) {
                     player.getInventory().setChestplate(null);
-                    player.getInventory().addItem(ItemBuilder.of(Material.BREAD).amount(20).build());
                     player.getPassengers().forEach(player::removePassenger);
                     player.setGameMode(GameMode.SURVIVAL);
+                    user.addItems();
                 }
                 rejoinPlayers.remove(user.getUsername());
                 return;
@@ -374,8 +392,9 @@ public class Game extends AbstractGame {
     @Override
     public @NotNull Phase[] getPhases() {
         return new Phase[]{
-                new WaitingPhase(),
-                new InGamePhase(this)
+                new WaitingPhase(this),
+                new InGamePhase(this),
+                new EndPhase(this)
         };
     }
 }

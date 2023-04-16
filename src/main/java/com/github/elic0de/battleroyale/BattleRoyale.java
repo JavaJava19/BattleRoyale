@@ -1,23 +1,31 @@
 package com.github.elic0de.battleroyale;
 
 import co.aikar.commands.PaperCommandManager;
-import com.github.elic0de.battleroyale.config.Settings;
-import com.github.elic0de.eliccommon.plugin.AbstractPlugin;
 import com.github.elic0de.battleroyale.command.BattleCommand;
+import com.github.elic0de.battleroyale.config.Settings;
 import com.github.elic0de.battleroyale.game.Game;
+import com.github.elic0de.battleroyale.hook.EconomyHook;
+import com.github.elic0de.battleroyale.hook.Hook;
+import com.github.elic0de.battleroyale.hook.VaultEconomyHook;
+import com.github.elic0de.battleroyale.listener.CompassListener;
 import com.github.elic0de.battleroyale.listener.EventListener;
 import com.github.elic0de.battleroyale.user.GameUserManager;
 import lombok.Getter;
 import net.william278.annotaml.Annotaml;
 import org.bukkit.Bukkit;
+import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 
 @Getter
-public final class BattleRoyale extends AbstractPlugin {
+public final class BattleRoyale extends JavaPlugin {
 
     private static BattleRoyale instance;
 
@@ -25,9 +33,9 @@ public final class BattleRoyale extends AbstractPlugin {
 
     private Settings settings;
 
+    private List<Hook> hooks = new ArrayList<>();
     @Override
     public void onLoad() {
-        super.onLoad();
         instance = this;
     }
 
@@ -35,11 +43,18 @@ public final class BattleRoyale extends AbstractPlugin {
     public void onEnable() {
         loadConfig();
 
-        game = new Game();
+        hooks = new ArrayList<>();
 
         registerCommands();
+        registerEconomyHook();
+
+        loadHooks();
 
         Bukkit.getPluginManager().registerEvents(new EventListener(), this);
+        Bukkit.getPluginManager().registerEvents(new CompassListener(), this);
+
+        game = new Game();
+
         GameUserManager.getOnlineUsers().forEach(player -> game.join(player));
     }
 
@@ -65,6 +80,33 @@ public final class BattleRoyale extends AbstractPlugin {
 
         commandManager.enableUnstableAPI("brigadier");
         commandManager.registerCommand(new BattleCommand());
+    }
+
+    private void registerEconomyHook() {
+        final PluginManager plugins = Bukkit.getPluginManager();
+        if (plugins.getPlugin("Vault") != null) {
+            this.registerHook(new VaultEconomyHook(this));
+        }
+    }
+
+    private void registerHook(Hook hook) {
+        getHooks().add(hook);
+    }
+
+    private void loadHooks() {
+        getHooks().stream().filter(Hook::isDisabled).forEach(Hook::enable);
+        getLogger().log(Level.INFO, "Successfully loaded " + getHooks().size() + " hooks");
+    }
+
+    private <T extends Hook> Optional<T> getHook(Class<T> hookClass) {
+        return hooks.stream()
+                .filter(hook -> hookClass.isAssignableFrom(hook.getClass()))
+                .map(hookClass::cast)
+                .findFirst();
+    }
+
+    public Optional<EconomyHook> getEconomyHook() {
+        return getHook(EconomyHook.class);
     }
 
     public static BattleRoyale getInstance() {
