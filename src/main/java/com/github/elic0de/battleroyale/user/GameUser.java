@@ -17,6 +17,8 @@ public class GameUser extends OnlineUser {
 
     private final Player player;
 
+    private BigDecimal coins;
+
     public GameUser(Player player) {
         super(player.getUniqueId(), player.getName());
         this.player = player;
@@ -41,11 +43,11 @@ public class GameUser extends OnlineUser {
 
     public void increaseKills() {
         // ここにキル数を増加させる処理を
-        giveCoins(2);
+        giveCoins(BigDecimal.valueOf(2));
     }
 
-    public void giveCoins(int coins) {
-
+    public void giveCoins(BigDecimal coins) {
+        coins.add(coins);
     }
 
     public void giveRewards(BigDecimal reward) {
