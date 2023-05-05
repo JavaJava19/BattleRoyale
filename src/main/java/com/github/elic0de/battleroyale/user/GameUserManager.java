@@ -1,5 +1,7 @@
 package com.github.elic0de.battleroyale.user;
 
+import com.github.elic0de.battleroyale.BattleRoyale;
+import com.github.elic0de.battleroyale.utils.annoData.AnnoData;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -27,7 +29,13 @@ public class GameUserManager {
         if (onlineUsers.containsKey(uuid)) {
             return onlineUsers.get(uuid);
         }
-        final GameUser gameUser = new GameUser(player);
+        final GameUserData userData = BattleRoyale.getInstance().getDatabase().find(GameUserData.class, player.getUniqueId().toString());
+        if (userData.getUniqueId() == null) {
+            userData.setUniqueId(player.getUniqueId().toString());
+            BattleRoyale.getInstance().getDatabase().insertData(userData);
+        }
+
+        final GameUser gameUser = new GameUser(player, userData);
         onlineUsers.put(uuid, gameUser);
         return gameUser;
     }

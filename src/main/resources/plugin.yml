@@ -1,4 +1,4 @@
-name: HungerGames
+name: BattleRoyale
 version: '${project.version}'
 main: com.github.elic0de.battleroyale.BattleRoyale
 api-version: 1.19

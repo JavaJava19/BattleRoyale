@@ -9,7 +9,9 @@ import com.github.elic0de.battleroyale.hook.Hook;
 import com.github.elic0de.battleroyale.hook.VaultEconomyHook;
 import com.github.elic0de.battleroyale.listener.CompassListener;
 import com.github.elic0de.battleroyale.listener.EventListener;
+import com.github.elic0de.battleroyale.user.GameUserData;
 import com.github.elic0de.battleroyale.user.GameUserManager;
+import com.github.elic0de.battleroyale.utils.annoData.AnnoData;
 import lombok.Getter;
 import net.william278.annotaml.Annotaml;
 import org.bukkit.Bukkit;
@@ -34,6 +36,9 @@ public final class BattleRoyale extends JavaPlugin {
     private Settings settings;
 
     private List<Hook> hooks = new ArrayList<>();
+
+    private AnnoData database;
+
     @Override
     public void onLoad() {
         instance = this;
@@ -44,16 +49,16 @@ public final class BattleRoyale extends JavaPlugin {
         loadConfig();
 
         hooks = new ArrayList<>();
+        game = new Game();
+        database = new AnnoData();
+        database.createTable(GameUserData.class);
 
         registerCommands();
         registerEconomyHook();
-
         loadHooks();
 
         Bukkit.getPluginManager().registerEvents(new EventListener(), this);
         Bukkit.getPluginManager().registerEvents(new CompassListener(), this);
-
-        game = new Game();
 
         GameUserManager.getOnlineUsers().forEach(player -> game.join(player));
     }
@@ -72,6 +77,7 @@ public final class BattleRoyale extends JavaPlugin {
         // Plugin shutdown logic
         GameUserManager.getOnlineUsers().forEach(player -> game.leave(player));
         game.reset();
+        database.close();
         //Bukkit.getScheduler().cancelTasks(this);
     }
 

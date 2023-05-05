@@ -53,7 +53,7 @@ public class Levels {
                 .toList();
         int maxLevel = requirements.size();
         for (int i = 0; i < maxLevel; i++) {
-            if (player.getXp() < requirements.get(i)) {
+            if (player.getData().getXp() < requirements.get(i)) {
                 return i + 1;
             }
         }

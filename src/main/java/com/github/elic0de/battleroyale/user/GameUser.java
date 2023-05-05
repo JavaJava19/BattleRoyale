@@ -16,19 +16,17 @@ import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 
+
 @Getter
 public class GameUser extends OnlineUser {
 
     private final Player player;
+    private final GameUserData data;
 
-    private int level;
-    private long kills;
-    private double xp;
-    private BigDecimal coins;
-
-    public GameUser(Player player) {
+    public GameUser(Player player, GameUserData data) {
         super(player.getUniqueId(), player.getName());
         this.player = player;
+        this.data = data;
     }
 
     public void addItems() {
@@ -52,12 +50,13 @@ public class GameUser extends OnlineUser {
         // ここにキル数を増加させる処理を
         giveCoins(BigDecimal.valueOf(2));
         increaseXP();
+        data.setKills(data.getKills() + 1);
     }
 
     public void increaseXP() {
-        this.xp++;
+        data.setXp(data.getXp());
         // レベルアップ
-        if (Levels.getPlayerNeededXP(level, (int) xp) == 0) levelUp();
+        if (Levels.getPlayerNeededXP(data.getLevel(), (int) data.getXp()) == 0) levelUp();
         //getBoard().updateNeededXp();
     }
 
@@ -70,16 +69,19 @@ public class GameUser extends OnlineUser {
     }
 
     public void levelUp() {
+        final int level = data.getLevel();
         final int nextLevel = level + 1;
-        final int previousLevel = this.level;
-        this.level = nextLevel;
+        final int previousLevel = level;
         //player.sendTitle("§b§lLEVEL UP!", previousLevel + " → " + nextLevel, 20,40, 20);
         player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f);
         updateDisplayName();
+        data.setLevel(nextLevel);
         //getBoard().updateLevel();
     }
 
     public void updateDisplayName() {
+        final int level = data.getLevel();
+
         final ChatColor color = Levels.getPlayerLevelColor(level);
         player.setDisplayName("[" + color + level + ChatColor.RESET + "]" + " " + getUsername());
         player.setPlayerListName("[" + color + level + ChatColor.RESET + "]" + " " + getUsername());

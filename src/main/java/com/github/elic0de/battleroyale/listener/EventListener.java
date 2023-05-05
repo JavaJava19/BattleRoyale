@@ -41,7 +41,9 @@ public class EventListener implements Listener {
     @EventHandler
     private void onQuit(PlayerQuitEvent event) {
         final Player player = event.getPlayer();
-        game.leave(GameUserManager.getGameUser(event.getPlayer()));
+        final GameUser user = GameUserManager.getGameUser(event.getPlayer());
+        BattleRoyale.getInstance().getDatabase().updateData(user.getData());
+        game.leave(user);
         GameUserManager.unRegisterUser(player);
     }
 
@@ -85,7 +87,7 @@ public class EventListener implements Listener {
                     if (!player.getInventory().contains(Material.FIREWORK_ROCKET))
                         player.getInventory().addItem(ItemBuilder.of(Material.FIREWORK_ROCKET).build());
 
-                    player.getInventory().setChestplate(ItemBuilder.of(Material.ELYTRA).build());
+                    Bukkit.getScheduler().runTask(BattleRoyale.getInstance(), () ->  player.getInventory().setChestplate(ItemBuilder.of(Material.ELYTRA).build()));
                     player.setGliding(true);
                 }
                 if (event.getDismounted() instanceof Player) {
